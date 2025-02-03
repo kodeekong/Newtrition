@@ -1,7 +1,6 @@
-@extends('layouts.app') <!-- Extending the layout you already have -->
+@extends('layouts.app')
 
 @section('content')
-    <!-- Welcome Section -->
     <section class="welcome-section">
         <div class="container">
             <h1>Welcome to Newtrition</h1>

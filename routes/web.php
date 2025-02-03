@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
 
-
 Route::get('/', function () {
     return view('home'); // You can replace 'welcome' with any view name
 });

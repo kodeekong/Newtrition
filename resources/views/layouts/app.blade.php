@@ -134,15 +134,6 @@
     <header>
         <h1>Newtrition</h1>
         @auth
-            <nav>
-                <ul>
-                    <li><a href="{{ route('dashboard.index') }}">Dashboard</a></li>
-                    <li><a href="{{ route('meal-log.index') }}">Meal Log</a></li>
-                    <li><a href="{{ route('goals.index') }}">Goals</a></li>
-                    <li><a href="{{ route('profile.show') }}">Profile</a></li>
-                    <li><a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a></li>
-                </ul>
-            </nav>
         @else
             <nav>
                 <ul>

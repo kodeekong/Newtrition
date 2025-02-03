@@ -11,32 +11,38 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    // Show the registration form
     public function showRegistrationForm()
     {
         return view('auth.register');
     }
 
-    // Handle the registration request
     public function register(Request $request)
     {
-        // Validate the registration input
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|confirmed|min:8',
+            'password' => [
+                'required',
+                'string',
+                'confirmed',
+                'min:8',
+                'regex:/[0-9]/',           // Ensure the password has at least one number
+                'regex:/[@$!%*?&.]/',        // Ensure the password has at least one special character
+            ],
+        ], [
+            // Custom validation messages
+            'email.email' => 'The email must be a valid email address.',
+            'password.regex' => 'The password must contain at least one number and one special character.',
         ]);
-
-        // Create the user
+    
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
-
-        // Log the user in
+    
         Auth::login($user);
-
+    
         return redirect()->route('home');
     }
 
