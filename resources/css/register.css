@@ -1,0 +1,76 @@
+/* public/css/style.css */
+
+/* Body and general background */
+body {
+    background-color: #f8f9fa; /* Light background for the page */
+    font-family: Arial, sans-serif;
+}
+
+/* Container to center content */
+.container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Card Styling */
+.card {
+    width: 100%;
+    max-width: 500px;
+    margin-top: 50px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Card Header */
+.card-header {
+    background-color: #007bff; /* Blue theme */
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Card Body */
+.card-body {
+    background-color: white;
+    padding: 30px;
+    border-radius: 0 0 10px 10px;
+}
+
+/* Form Input Fields */
+.form-control {
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+/* Labels */
+.form-label {
+    font-weight: bold;
+    color: #495057;
+}
+
+/* Error messages */
+.text-danger {
+    font-size: 0.9rem;
+}
+
+/* Button styling */
+.btn-primary {
+    background-color: #28a745; /* Green theme */
+    border-color: #28a745;
+    width: 100%;
+    padding: 10px;
+    font-size: 1.2rem;
+    border-radius: 5px;
+}
+
+.btn-primary:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+/* Center the submit button text */
+.mb-3.text-center {
+    text-align: center;
+}
