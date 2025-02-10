@@ -7,63 +7,60 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <style>
-        /* Global Styles */
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'avenir';
             margin: 0;
             padding: 0;
             background-color: #F2F7F6;
             color: #333;
         }
 
-        /* Header Section */
         header {
-            background-color: #2F6F76; /* Turquoise */
-            color: white;
-            padding: 20px 0;
-            text-align: center;
-        }
+    background-color: #4195be; /* Turquoise */
+    color: white;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
 
-        header h1 {
-            margin: 0;
-            font-size: 36px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
+header img {
+    height: 75px; /* Adjust the height of the logo */
+    max-width: 180px;
+    object-fit: contain;
+}
 
-        /* Navigation Bar */
-        nav ul {
-            display: flex;
-            justify-content: center;
-            list-style: none;
-            margin: 20px 0;
-            padding: 0;
-        }
+nav ul {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
 
-        nav ul li {
-            margin: 0 20px;
-        }
+nav ul li {
+    margin: 0 15px;
+}
 
-        nav ul li a {
-            color: white;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 18px;
-            transition: color 0.3s ease;
-        }
+nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+    transition: color 0.3s ease;
+}
 
-        nav ul li a:hover {
-            color: #B65449; /* Maroon */
-        }
+nav ul li a:hover {
+    color: #B65449; /* Maroon */
+}
 
-        /* Main Content */
+
         main {
             padding: 40px 20px;
         }
 
         /* Footer Section */
         footer {
-            background-color: #2F6F76; /* Turquoise */
+            background-color: #4195be; /* Turquoise */
             color: white;
             text-align: center;
             padding: 20px;
@@ -76,7 +73,6 @@
             margin: 0;
         }
 
-        /* Welcome Section */
         .welcome-section {
             text-align: center;
             padding: 60px 20px;
@@ -87,7 +83,7 @@
         }
 
         .welcome-section h1 {
-            color: #2F6F76; /* Turquoise */
+            color: #4195be; /* Turquoise */
             font-size: 48px;
             margin-bottom: 20px;
         }
@@ -109,7 +105,7 @@
         }
 
         .cta-buttons .btn-primary {
-            background-color: #2F6F76; /* Turquoise */
+            background-color: #4195be; /* Turquoise */
             color: white;
         }
 
@@ -118,21 +114,24 @@
         }
 
         .cta-buttons .btn-secondary {
-            background-color: #B65449; /* Maroon */
+            background-color: #4195be; /* Maroon */
             color: white;
         }
 
         .cta-buttons .btn-secondary:hover {
-            background-color: #2F6F76; /* Turquoise */
+            background-color: #B65449; /* Turquoise */
+        }
+
+        .img {
+
         }
 
     </style>
 </head>
 <body>
 
-    <!-- Header Section -->
     <header>
-        <h1>Newtrition</h1>
+        <img src="{{ asset('images/newtrition_logo.png') }}" alt="Newtrition Logo">
         @auth
         @else
             <nav>
@@ -144,17 +143,14 @@
         @endauth
     </header>
 
-    <!-- Main Content Section -->
     <main>
-        @yield('content') <!-- Content from individual views will be injected here -->
+        @yield('content') 
     </main>
 
-    <!-- Footer Section -->
     <footer>
         <p>&copy; 2025 Newtrition. All rights reserved.</p>
     </footer>
 
-    <!-- Logout Form -->
     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
         @csrf
     </form>

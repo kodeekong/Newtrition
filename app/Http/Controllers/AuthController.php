@@ -63,7 +63,7 @@ class AuthController extends Controller
 
         // Attempt to log the user in
         if (Auth::attempt($request->only('email', 'password'))) {
-            return redirect()->route('home');
+            return redirect()->route('personal');
         }
 
         return back()->withErrors([
@@ -76,5 +76,10 @@ class AuthController extends Controller
     {
         Auth::logout();
         return redirect()->route('login');
+    }
+
+    public function home()
+    {
+        return view('home');
     }
 }
