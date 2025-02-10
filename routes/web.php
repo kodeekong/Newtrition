@@ -15,3 +15,6 @@ Route::post('logout', [AuthController::class, 'logout'])->name('logout'); // Han
 
 Route::get('register', [AuthController::class, 'showRegistrationForm'])->name('register'); // Show registration form
 Route::post('register', [AuthController::class, 'register']); // Handle registration
+
+// Protected routes
+Route::get('home', [AuthController::class, 'home'])->name('home'); // Show registration form
