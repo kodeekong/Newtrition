@@ -52,6 +52,12 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
+    // Show the user home page
+    public function showUserHome()
+    {
+        return view('user.personal');
+    }
+
     // Handle the login request
     public function login(Request $request)
     {
