@@ -12,14 +12,17 @@
             <option value="other">Other</option>
         </select>
 
+        <label for="age">Age:</label>
+        <input type="number" id="age" name="age" min="14" max="100" required>
+
         <label for="weight">Weight (lb):</label>
-        <input type="number" id="weight" name="weight" min="20" max="300" required>
+        <input type="number" id="weight_ft" name="weight_ft" min="3" max="10"required>
 
         <label for="height">Height (inch):</label>
-        <input type="number" id="height" name="height" min="100" max="250" required>
+        <input type="number" id="height_ft" name="height_ft" min="0" max="11" required>
 
         <label for="activity">Activity Level:</label>
-        <select id="activity" name="activity" required>
+        <select id="activity_level" name="activity_level" required>
             <option value="">Select Activity Level</option>
             <option value="very_active">Very Active</option>
             <option value="moderately_active">Moderately Active</option>

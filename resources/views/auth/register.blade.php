@@ -106,6 +106,14 @@ a:hover {
                 </div>
 
                 <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" id="username" name="username" class="form-control" value="{{ old('username') }}" required>
+                    @error('username')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
                     <label for="email" class="form-label">Email Address</label>
                     <input type="email" id="email" name="email" class="form-control" value="{{ old('email') }}" required>
                     @error('email')
