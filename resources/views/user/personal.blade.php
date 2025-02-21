@@ -16,10 +16,10 @@
         <input type="number" id="age" name="age" min="14" max="100" required>
 
         <label for="weight">Weight (lb):</label>
-        <input type="number" id="weight_ft" name="weight_ft" min="3" max="10"required>
+        <input type="number" id="weight_ft" name="weight_ft" min="50" max="300"required>
 
         <label for="height">Height (inch):</label>
-        <input type="number" id="height_ft" name="height_ft" min="0" max="11" required>
+        <input type="number" id="height_ft" name="height_ft" min="0" max="90" required>
 
         <label for="activity">Activity Level:</label>
         <select id="activity_level" name="activity_level" required>
