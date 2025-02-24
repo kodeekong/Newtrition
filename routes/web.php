@@ -17,9 +17,12 @@ Route::post('logout', [AuthController::class, 'logout'])->name('logout'); // han
 Route::get('register', [AuthController::class, 'showRegistrationForm'])->name('register'); // Show registration form
 Route::post('register', [AuthController::class, 'register']); // handle registration
 
-Route::get('personal', [AuthController::class, 'showUserHome'])->name('personal'); // Show user home page
-Route::middleware('auth')->get('/profile', [ProfileController::class, 'showProfileForm'])->name('profile.form');
-Route::middleware('auth')->post('/profile', [ProfileController::class, 'updateProfile'])->name('profile.update');
+// Route::get('personal', [AuthController::class, 'showUserHome'])->name('personal');
+
+Route::middleware('auth')->get('/personal', [ProfileController::class, 'showForm'])->name('personal');
+Route::middleware('auth')->post('/personal', [ProfileController::class, 'submitForm']);
+Route::middleware('auth')->get('/profile', [ProfileController::class, 'showProfile'])->name('profile');
+
 
 // Protected routes
 Route::get('home', [AuthController::class, 'home'])->name('home'); // Show registration form

@@ -10,48 +10,36 @@ use Illuminate\Support\Facades\Auth;
 
 class ProfileController extends Controller
 {
-    // Show the form to fill in profile information
-    public function showProfileForm()
+    public function showForm(Request $request)
     {
-        return view('profile.form'); // Blade view for the profile form
+        return view('user.personal'); 
     }
 
-    // Handle the profile form submission
-    public function submitProfile(Request $request)
+    public function submitForm(Request $request)
     {
-        // Validate the incoming data
         $validated = $request->validate([
-            'gender' => 'required|string',
-            'weight' => 'required|numeric|min:20|max:300',
-            'height' => 'required|numeric|min:12|max:250',
-            'activity' => 'required|string',
-            'age' => 'required|integer',
+            'age' => 'required|integer|min:14|max:100',
+            'gender' => 'required|in:male,female',
+            'weight' => 'required|numeric|min:3|max:1000',
+            'height' => 'required|integer|min:0|max:120',
+            'activity_level' => 'required|in:light,moderate,very_active',
         ]);
 
-        // Assuming the user is authenticated, get the authenticated user's ID
         $userId = Auth::id();
 
         // Save the profile information
         Profile::create([
-            'user_id' => $userId, // Attach the current authenticated user's ID
+            'user_id' => $userId,
             'gender' => $validated['gender'],
             'weight' => $validated['weight'],
-            'height_inch' => $validated['height'], // Get the remaining inches
-            'activity_level' => $validated['activity'],
-            'age' => $request->age,  
+            'height_inch' => $validated['height'], 
+            'activity_level' => $validated['activity_level'],
+            'age' => $validated['age'],  
         ]);
 
-        // Redirect the user to a confirmation page or another view
-        return redirect()->route('profile.complete');
+        return redirect()->route('profile')->with('success', 'Profile updated successfully!');
     }
 
-    // Show profile completion page
-    public function showProfileCompletion()
-    {
-        return view('profile.complete');
-    }
-
-    // Calculate daily calorie needs based on the user's profile
     public function calculateDailyCalorieNeeds($userId)
     {
         $userId = Auth::id();
@@ -61,7 +49,6 @@ class ProfileController extends Controller
             return response()->json(['error' => 'Profile not found'], 404);
         }
 
-        // Directly use the feet/inches and pounds (no conversion to cm or kg)
         $heightInInches = ($profile->height_ft * 12) + $profile->height_inch;
         $weightInLbs = $profile->weight;
         $age = $profile->age;
