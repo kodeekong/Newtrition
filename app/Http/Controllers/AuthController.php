@@ -29,6 +29,7 @@ class AuthController extends Controller
                 'regex:/[0-9]/',           // Ensure the password has at least one number
                 'regex:/[@$!%*?&.]/',        // Ensure the password has at least one special character
             ],
+            'username' => 'required|string|unique:users,username|min:3',
         ], [
             // Custom validation messages
             'email.email' => 'The email must be a valid email address.',
@@ -39,6 +40,7 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'username' => $request->username,
         ]);
     
         Auth::login($user);

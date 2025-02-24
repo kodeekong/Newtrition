@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfileController;
 
 
 Route::get('/', function () {
@@ -21,3 +22,18 @@ Route::get('personal', [AuthController::class, 'showUserHome'])->name('personal'
 
 // Protected routes
 Route::get('home', [AuthController::class, 'home'])->name('home'); // Show registration form
+
+//Profile
+Route::middleware(['auth'])->group(function () {
+    // Show the profile form to fill in data
+    Route::get('/profile/form', [ProfileController::class, 'showProfileForm'])->name('profile.form');
+
+    // Handle profile form submission
+    Route::post('/profile/submit', [ProfileController::class, 'submitProfile'])->name('profile.submit');
+
+    // Show profile completion page
+    Route::get('/profile/complete', [ProfileController::class, 'showProfileCompletion'])->name('profile.complete');
+
+    // Calculate daily calorie needs based on user profile
+    Route::get('/profile/calories', [ProfileController::class, 'calculateDailyCalorieNeeds'])->name('profile.calories');
+});
