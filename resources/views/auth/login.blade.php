@@ -99,7 +99,7 @@ a:hover {
                 @csrf
 
                 <div class="mb-3">
-                    <label for="email" class="form-label">Email Address</label>
+                    <label for="email" class="form-label">Username or Email Address</label>
                     <input type="email" id="email" name="email" class="form-control" value="{{ old('email') }}" required autofocus>
                     @error('email')
                         <small class="text-danger">{{ $message }}</small>

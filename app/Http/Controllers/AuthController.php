@@ -1,7 +1,5 @@
 <?php
 
-// app/Http/Controllers/AuthController.php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -20,24 +18,25 @@ class AuthController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => [
                 'required',
                 'string',
                 'confirmed',
                 'min:8',
-                'regex:/[0-9]/',           // Ensure the password has at least one number
-                'regex:/[@$!%*?&.]/',        // Ensure the password has at least one special character
+                'regex:/[0-9]/',          
+                'regex:/[@$!%*?&.]/',       
             ],
             'username' => 'required|string|unique:users,username|min:3',
         ], [
-            // Custom validation messages
             'email.email' => 'The email must be a valid email address.',
             'password.regex' => 'The password must contain at least one number and one special character.',
         ]);
     
         $user = User::create([
             'name' => $request->name,
+            'username' => $request->username,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'username' => $request->username,
@@ -45,16 +44,14 @@ class AuthController extends Controller
     
         Auth::login($user);
     
-        return redirect()->route('home');
+        return redirect()->route('personal');
     }
 
-    // Show the login form
     public function showLoginForm()
     {
         return view('auth.login');
     }
 
-    // Show the user home page
     public function showUserHome()
     {
         return view('user.personal');
@@ -63,23 +60,21 @@ class AuthController extends Controller
     // Handle the login request
     public function login(Request $request)
     {
-        // Validate the login input
         $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string',
         ]);
 
-        // Attempt to log the user in
         if (Auth::attempt($request->only('email', 'password'))) {
+            
             return redirect()->route('personal');
         }
-
+    
         return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
+            'login' => 'The provided credentials do not match our records.',
         ]);
     }
 
-    // Handle the logout request
     public function logout()
     {
         Auth::logout();
