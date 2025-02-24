@@ -7,36 +7,39 @@ use Illuminate\Support\Facades\Auth;
 
 class ProfileController extends Controller
 {
-    public function showProfileForm()
+    public function showForm(Request $request)
     {
-        $profile = Auth::user()->profile;
-
-        return view('user.profile', compact('profile'));
+        return view('user.personal'); 
     }
 
-    public function updateProfile(Request $request)
-{
-    $request->validate([
-        'age' => 'required|integer|min:14|max:100',
-        'gender' => 'required|in:male,female,other',
-        'weight' => 'required|numeric|min:3|max:1000',
-        'height_ft' => 'required|integer|min:0|max:10',
-        'height_inch' => 'required|integer|min:0|max:11',
-        'activity_level' => 'required|in:light,moderate,very_active',
-    ]);
+    public function submitForm(Request $request)
+    {
+        $validated = $request->validate([
+            'age' => 'required|integer|min:14|max:100',
+            'gender' => 'required|in:male,female',
+            'weight' => 'required|numeric|min:3|max:1000',
+            'height' => 'required|integer|min:0|max:120',
+            'activity_level' => 'required|in:light,moderate,very_active',
+        ]);
 
-    $profile = Auth::user()->profile;
+        $userId = Auth::id();
 
-    $profile->update([
-        'age' => $request->age,
-        'gender' => $request->gender,
-        'weight' => $request->weight,
-        'height_ft' => $request->height_ft,
-        'height_inch' => $request->height_inch,
-        'activity_level' => $request->activity_level,
-    ]);
+        // Save the profile information
+        Profile::create([
+            'user_id' => $userId,
+            'gender' => $validated['gender'],
+            'weight' => $validated['weight'],
+            'height_inch' => $validated['height'], 
+            'activity_level' => $validated['activity_level'],
+            'age' => $validated['age'],  
+        ]);
 
-    return redirect()->route('profile')->with('success', 'Profile updated successfully!');
-}
+        return redirect()->route('profile')->with('success', 'Profile updated successfully!');
+    }
 
+    public function showProfile(Request $request)
+    {
+        $profile = Auth::user()->profile;
+        return view('user.profile', compact('profile')); 
+    }
 }

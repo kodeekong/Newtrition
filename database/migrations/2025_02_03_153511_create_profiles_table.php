@@ -14,7 +14,6 @@ class CreateProfilesTable extends Migration
             $table->integer('age');
             $table->enum('gender', ['male', 'female', 'other']);
             $table->float('weight');
-            $table->integer('height_ft');  
             $table->integer('height_inch'); 
             $table->enum('activity_level', ['light', 'moderate', 'very_active']);
             $table->timestamps();

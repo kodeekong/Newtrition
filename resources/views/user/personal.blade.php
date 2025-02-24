@@ -1,25 +1,24 @@
 @extends('layouts.app')
 
 @section('content')
-    
     <h2>Your information</h2>
-    <form action="/submit" method="POST">
+    <form action="{{ route('personal') }}" method="POST">
+        @csrf  
         <label for="gender">Gender:</label>
         <select id="gender" name="gender" required>
             <option value="">Select Gender</option>
             <option value="male">Male</option>
             <option value="female">Female</option>
-            <option value="other">Other</option>
         </select>
 
         <label for="age">Age:</label>
         <input type="number" id="age" name="age" min="14" max="100" required>
 
         <label for="weight">Weight (lb):</label>
-        <input type="number" id="weight_ft" name="weight_ft" min="50" max="300"required>
+        <input type="number" id="weight" name="weight" min="50" max="300" required>
 
         <label for="height">Height (inch):</label>
-        <input type="number" id="height_ft" name="height_ft" min="0" max="90" required>
+        <input type="number" id="height" name="height" min="0" max="90" required>
 
         <label for="activity">Activity Level:</label>
         <select id="activity_level" name="activity_level" required>
@@ -31,5 +30,4 @@
 
         <button type="submit">Submit</button>
     </form>
-
 @endsection
