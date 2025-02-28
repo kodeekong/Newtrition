@@ -11,11 +11,14 @@
         <p><strong>Gender:</strong> {{ $profile->gender }}</p>
         <p><strong>Age:</strong> {{ $profile->age }}</p>
         <p><strong>Weight:</strong> {{ $profile->weight }} lb</p>
-        <p><strong>Height:</strong> {{ $profile->height_ft }} ft</p>
+        <p><strong>Height:</strong> {{ intdiv($profile->height_inch, 12) }}' {{ $profile->height_inch % 12 }}"</p>
         <p><strong>Activity Level:</strong> {{ $profile->activity_level }}</p>
 
         <a href="{{ route('personal') }}">
             <button type="button">Edit Profile</button>
+        </a>
+        <a href="{{ route('home') }}">
+            <button type="button">Sign Out</button>
         </a>
     </form>
 @endsection
