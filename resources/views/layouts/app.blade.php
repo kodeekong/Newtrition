@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <style>
+        /* General body and layout styling */
         body {
             font-family: 'avenir';
             margin: 0;
@@ -15,50 +16,51 @@
             color: #333;
         }
 
+        /* Header styling */
         header {
-    background-color: #4195be; /* Turquoise */
-    color: white;
-    padding: 10px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
+            background-color: #4195be; /* Turquoise */
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
 
-header img {
-    height: 75px; /* Adjust the height of the logo */
-    max-width: 180px;
-    object-fit: contain;
-}
+        header img {
+            height: 75px;
+            max-width: 180px;
+            object-fit: contain;
+        }
 
-nav ul {
-    display: flex;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
+        nav ul {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
 
-nav ul li {
-    margin: 0 15px;
-}
+        nav ul li {
+            margin: 0 15px;
+        }
 
-nav ul li a {
-    color: white;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 16px;
-    transition: color 0.3s ease;
-}
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: color 0.3s ease;
+        }
 
-nav ul li a:hover {
-    color: #B65449; /* Maroon */
-}
+        nav ul li a:hover {
+            color: #B65449; /* Maroon */
+        }
 
-
+        /* Main content styling */
         main {
             padding: 40px 20px;
         }
 
-        /* Footer Section */
+        /* Footer section */
         footer {
             background-color: #4195be; /* Turquoise */
             color: white;
@@ -122,10 +124,6 @@ nav ul li a:hover {
             background-color: #B65449; /* Turquoise */
         }
 
-        .img {
-
-        }
-
     </style>
 </head>
 <body>
@@ -133,6 +131,13 @@ nav ul li a:hover {
     <header>
         <img src="{{ asset('images/newtrition_logo.png') }}" alt="Newtrition Logo">
         @auth
+            <nav>
+                <ul>
+                    <li><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                    <li><a href="{{ route('profile') }}">Profile</a></li>
+                    <li><a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a></li>
+                </ul>
+            </nav>
         @else
             <nav>
                 <ul>
