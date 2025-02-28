@@ -16,7 +16,8 @@ class CreateProfilesTable extends Migration
             $table->float('weight');
             $table->integer('height_inch'); 
             $table->enum('activity_level', ['light', 'moderate', 'very_active']);
-
+            $table->enum('goal', ['gain_weight', 'maintain_weight', 'lose_weight'])
+                ->change();
             $table->timestamps();
         });
     }
