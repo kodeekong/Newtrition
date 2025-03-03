@@ -21,7 +21,7 @@ Route::post('register', [AuthController::class, 'register']); // handle registra
 
 Route::middleware('auth')->group(function () {
     Route::get('/personal', [ProfileController::class, 'showForm'])->name('personal');
-    Route::post('/personal', [ProfileController::class, 'submitForm']);
+    Route::post('/personal', [ProfileController::class, 'submitForm'])->name('personal');
     Route::get('/profile', [ProfileController::class, 'showProfile'])->name('profile');
     Route::middleware('auth')->get('/dashboard', [ProfileController::class, 'showDashboard'])->name('dashboard');
 });
