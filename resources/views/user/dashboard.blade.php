@@ -4,6 +4,7 @@
 
 @section('content')
     <div class="welcome-section">
+
         <h1>Welcome to Your Dashboard, {{ Auth::user()->name }}!</h1>
         <p>Here you can see your profile information, daily calorie needs, and more.</p>
 

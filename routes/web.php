@@ -30,11 +30,11 @@ Route::get('home', [AuthController::class, 'home'])->name('home'); // Show regis
 //Food
 
 Route::prefix('food')->name('food.')->middleware('auth')->group(function () {
-    Route::get('search', [FoodController::class, 'search'])->name('search');
-    Route::get('search/results', [FoodController::class, 'searchFood'])->name('search.results');
-    Route::get('search/open-food-facts', [FoodController::class, 'searchOpenFoodFacts'])->name('search.openFoodFacts');
-    Route::post('add', [FoodController::class, 'addFood'])->name('add');
-    Route::get('add/{id}', [FoodController::class, 'addOpenFoodToDatabase'])->name('add.openFood');
+    Route::get('search', [FoodController::class, 'search'])->name('search'); // Show search form and list all foods
+    Route::get('search/results', [FoodController::class, 'searchFood'])->name('search.results'); // Handle food search
+    Route::get('search/open-food-facts', [FoodController::class, 'searchOpenFoodFacts'])->name('search.openFoodFacts'); // Search Open Food Facts API
+    Route::post('add', [FoodController::class, 'addFood'])->name('add'); // Add food to food entries
+    Route::get('add/{id}', [FoodController::class, 'addOpenFoodToDatabase'])->name('add.openFood'); // Add food from Open Food Facts to the database
 });
 
 
