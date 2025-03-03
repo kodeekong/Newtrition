@@ -36,6 +36,7 @@ class ProfileController extends Controller
     
         // If the user does not have a profile, show the personal form to complete their profile
         return view('user.personal'); // Redirect to the personal page to complete the profile
+
     }
     
     
