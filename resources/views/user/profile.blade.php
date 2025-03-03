@@ -52,9 +52,7 @@
                     datasets: [{
                         label: 'Daily Calorie Needs',
                         data: [
-                            @json($protein), 
-                            @json($carbs),
-                            @json($fats)
+                            
                         ],  // Use dynamic data passed from the controller
                         backgroundColor: ['#4caf50', '#ff9800', '#2196f3'],
                         borderColor: ['#388e3c', '#f57c00', '#1976d2'],
