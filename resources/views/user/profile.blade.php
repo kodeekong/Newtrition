@@ -3,43 +3,30 @@
 @section('title', 'Dashboard')
 
 @section('content')
-
     <div class="dashboard">
         <h1>Welcome to Your Dashboard, {{ Auth::user()->name }}!</h1>
         <p>Here you can see your profile information, daily calorie needs, and more.</p>
 
-        <!-- Profile Information Section -->
         <div class="profile-info">
             <h3>Profile Information</h3>
             <p><strong>Age:</strong> {{ $profile->age }}</p>
+            <p><strong>Weight:</strong> {{ $profile->weight }} lb</p>
+            <p><strong>Height:</strong> {{ intdiv($profile->height_inch, 12) }}' {{ $profile->height_inch % 12 }}"</p>
             <p><strong>Gender:</strong> {{ $profile->gender }}</p>
-            <p><strong>Weight:</strong> {{ $profile->weight }} lbs</p>
-            <p><strong>Height:</strong> {{ $profile->height_inch }} inches</p>
+            <p><strong>Goal:</strong> {{ $profile->goal }}</p>
             <p><strong>Activity Level:</strong> {{ $profile->activity_level }}</p>
-            <p><strong>Goal:</strong> {{ $profile->goal }}</p> <!-- New goal field -->
         </div>
 
-        <!-- Daily Calorie Calculation Section -->
         <div class="daily-calories">
             <h3>Calculate Your Daily Calorie Needs</h3>
             <p>Your total daily energy expenditure (TDEE) is calculated based on your profile. This can help you manage your nutrition and fitness goals.</p>
-            <!-- You can add the logic to calculate and display TDEE here -->
         </div>
 
-
-        <!-- Calorie Chart Section -->
         <div class="calorie-chart">
             <canvas id="calorieGraph"></canvas>
         </div>
     </div>
     <form>
-        <p><strong>Activity Level:</strong> {{ $profile->activity_level }}</p>
-        <p><strong>Goal:</strong> {{ $profile->goal }}</p>
-        <p><strong>Weight:</strong> {{ $profile->weight }} lb</p>
-        <p><strong>Height:</strong> {{ intdiv($profile->height_inch, 12) }}' {{ $profile->height_inch % 12 }}"</p>
-        <p><strong>Gender:</strong> {{ $profile->gender }}</p>
-        <p><strong>Age:</strong> {{ $profile->age }}</p>
-
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>

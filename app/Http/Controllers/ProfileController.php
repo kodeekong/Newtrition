@@ -30,43 +30,47 @@ class ProfileController extends Controller
         return view('user.personal'); 
     }
 
-    public function submitForm(Request $request)
-    {
-        $validated = $request->validate([
-            'age' => 'required|integer|min:14|max:100',
-            'gender' => 'required|in:male,female',
-            'weight' => 'required|numeric|min:3|max:1000',
-            'height' => 'required|integer|min:0|max:120',
-            'activity_level' => 'required|in:light,moderate,very_active',
-            'goal' => 'required|in:gain_weight,maintain_weight,lose_weight', 
-        ]);
-    
-        $userId = Auth::id();
-        if (!$userId) {
-            return back()->withErrors(['error' => 'You must be logged in to submit your profile.']);
-        }
+public function submitForm(Request $request)
+{
+    $validated = $request->validate([
+        'age' => 'required|integer|min:14|max:100',
+        'gender' => 'required|in:male,female',
+        'weight' => 'required|numeric|min:3|max:1000',
+        'height' => 'required|integer|min:0|max:120',
+        'activity_level' => 'required|in:light,moderate,very_active',
+    ]);
 
-        $profile = Profile::updateOrCreate(
-            ['user_id' => $userId], 
-            [
-            'gender' => $validated['gender'],
-            'weight' => $validated['weight'],
-            'height_inch' => $validated['height'],
-            'activity_level' => $validated['activity_level'],
-            'age' => $validated['age'],
-            'goal' => $validated['goal'],
-            ]
-        );
-
-        return redirect()->route('profile')->with('success', 'Profile updated successfully!');
-        }
-    
-
-    public function showProfile(Request $request)
-    {
-        $profile = Auth::user()->profile;
-        return view('user.profile', compact('profile')); 
+    $userId = Auth::id();
+    if (!$userId) {
+        return back()->withErrors(['error' => 'You must be logged in to submit your profile.']);
     }
+
+    Profile::create([
+        'user_id' => $userId,
+        'gender' => $validated['gender'],
+        'weight' => $validated['weight'],
+        'height_inch' => $validated['height'],
+        'activity_level' => $validated['activity_level'],
+        'age' => $validated['age'],
+    ]);
+
+    return redirect()->route('profile')->with('success', 'Profile updated successfully!');
+}
+
+    
+
+    public function showProfile()
+    {
+        $userId = Auth::id();
+        $profile = Profile::where('user_id', $userId)->first();
+
+        if (!$profile) {
+         return redirect()->route('personal')->withErrors(['error' => 'Please complete your profile first.']);
+    }
+
+    return view('user.profile', compact('profile'));
+    }
+
 
     public function calculateDailyCalorieNeeds($userId)
     {

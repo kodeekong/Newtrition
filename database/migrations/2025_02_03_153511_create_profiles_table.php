@@ -12,12 +12,11 @@ class CreateProfilesTable extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->integer('age');
-            $table->enum('gender', ['male', 'female', 'other']);
+            $table->enum('gender', ['Male', 'Female', 'Other']);
             $table->float('weight');
             $table->integer('height_inch'); 
             $table->enum('activity_level', ['light', 'moderate', 'very_active']);
-            $table->enum('goal', ['gain_weight', 'maintain_weight', 'lose_weight'])
-                ->change();
+            $table->enum('goal', ['gain_weight', 'maintain_weight', 'lose_weight']);
             $table->timestamps();
         });
     }
