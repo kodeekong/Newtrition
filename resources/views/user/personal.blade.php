@@ -151,8 +151,8 @@ button:hover {
         <label for="gender">Gender:</label>
         <select id="gender" name="gender" required>
             <option value="">Select Gender</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
         </select>
 
         <label for="age">Age:</label>
@@ -167,16 +167,16 @@ button:hover {
         <label for="activity">Activity Level:</label>
         <select id="activity_level" name="activity_level" required>
             <option value="">Select Activity Level</option>
+            <option value="light">Light</option>
+            <option value="moderate">Moderate</option>
             <option value="very_active">Very Active</option>
-            <option value="moderately_active">Moderately Active</option>
-            <option value="lightly_active">Lightly Active</option>
         </select>
 
         <label for="goal">Goal:</label>
         <select id="goal" name="goal" required>
-            <option value="gain weight">Gain weight</option>
-            <option value="maintain weight">Maintain weight</option>
-            <option value="lose weight">Lose weight</option>
+            <option value="gain_weight">Gain weight</option>
+            <option value="maintain_weight">Maintain weight</option>
+            <option value="lose_weight">Lose weight</option>
         </select>
 
         <button type="submit">Submit</button>
