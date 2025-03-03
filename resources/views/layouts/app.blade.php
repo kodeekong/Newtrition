@@ -134,6 +134,7 @@
         @else
             <nav>
                 <ul>
+                    <li><a href="{{ route('food.search') }}">Go to Food Search</a></li>
                     <li><a href="{{ route('register') }}">Sign Up</a></li>
                     <li><a href="{{ route('login') }}">Login</a></li>
                 </ul>
@@ -148,6 +149,16 @@
     <footer>
         <p>&copy; 2025 Newtrition. All rights reserved.</p>
     </footer>
+
+
+    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+        @csrf
+    </form>
+
+    <footer style="background-color: #4195be; color: white; text-align: center; padding: 20px;">
+    <p>&copy; 2025 Newtrition. All rights reserved. | <a href="#" style="color: white;">Privacy Policy</a> | <a href="#" style="color: white;">Terms of Service</a></p>
+</footer>
+
 
 </body>
 </html>

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\FoodController;
 
 
 Route::get('/', function () {
@@ -25,6 +26,17 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('home', [AuthController::class, 'home'])->name('home'); // Show registration form
+
+//Food
+
+Route::prefix('food')->name('food.')->middleware('auth')->group(function () {
+    Route::get('search', [FoodController::class, 'search'])->name('search');
+    Route::get('search/results', [FoodController::class, 'searchFood'])->name('search.results');
+    Route::get('search/open-food-facts', [FoodController::class, 'searchOpenFoodFacts'])->name('search.openFoodFacts');
+    Route::post('add', [FoodController::class, 'addFood'])->name('add');
+    Route::get('add/{id}', [FoodController::class, 'addOpenFoodToDatabase'])->name('add.openFood');
+});
+
 
 //Profile
 // Route::middleware(['auth'])->group(function () {
