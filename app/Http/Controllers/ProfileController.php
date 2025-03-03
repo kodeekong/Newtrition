@@ -13,11 +13,9 @@ class ProfileController extends Controller
 
     public function showDashboard()
     {
-        // Get the authenticated user's profile
         $user = Auth::user();
-        $profile = $user->profile; // Assuming the user has one profile associated with them
+        $profile = $user->profile; 
 
-        // Check if the profile exists, if not you can return a message or redirect
         if (!$profile) {
             return redirect()->route('profile')->with('error', 'Please complete your profile before accessing the dashboard.');
         }
@@ -25,10 +23,19 @@ class ProfileController extends Controller
         return view('user.dashboard', compact('user', 'profile')); 
     }
 
-    public function showForm(Request $request)
+    public function showForm()
     {
-        return view('user.personal'); 
+        $userId = Auth::id();
+        
+        $profile = Profile::where('user_id', $userId)->first();
+        
+        if ($profile) {
+            return redirect()->route('profile'); 
+        }
+    
+        return view('personal');
     }
+    
 
     public function submitForm(Request $request)
     {
@@ -111,7 +118,6 @@ class ProfileController extends Controller
         }
     }
 
-    // Helper method to get the activity multiplier based on activity level
     private function getActivityMultiplier($activityLevel)
     {
         $activityMultipliers = [

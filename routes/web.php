@@ -10,18 +10,16 @@ Route::get('/', function () {
 });
 
 // Authentication Routes
-Route::get('login', [AuthController::class, 'showLoginForm'])->name('login'); // Show login form
-Route::post('login', [AuthController::class, 'login']); // Handle login
-Route::post('logout', [AuthController::class, 'logout'])->name('logout'); // handle logout
+Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('login', [AuthController::class, 'login']); 
+Route::post('logout', [AuthController::class, 'logout'])->name('logout'); 
 
-Route::get('register', [AuthController::class, 'showRegistrationForm'])->name('register'); // Show registration form
+Route::get('register', [AuthController::class, 'showRegistrationForm'])->name('register');
 Route::post('register', [AuthController::class, 'register']); // handle registration
-
-// Route::get('personal', [AuthController::class, 'showUserHome'])->name('personal');
 
 Route::middleware('auth')->group(function () {
     Route::get('/personal', [ProfileController::class, 'showForm'])->name('personal');
-    Route::post('/personal', [ProfileController::class, 'submitForm']);
+    Route::post('/personal', [ProfileController::class, 'submitForm'])->name('personal');
     Route::get('/profile', [ProfileController::class, 'showProfile'])->name('profile');
     Route::middleware('auth')->get('/dashboard', [ProfileController::class, 'showDashboard'])->name('dashboard');
 });

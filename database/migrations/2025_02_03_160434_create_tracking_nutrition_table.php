@@ -19,14 +19,12 @@ return new class extends Migration
             $table->date('date');
             $table->enum('status', ['today', 'yesterday', 'last_week', 'custom'])->default('today');
             
-            // Actual consumption data
             $table->float('calories_consumed')->nullable();
             $table->float('protein_consumed')->nullable();
             $table->float('carbs_consumed')->nullable();
             $table->float('fat_consumed')->nullable();
 
 
-            // Goal data for each nutrient (for daily tracking, may vary based on long-term goals)
             $table->float('calories_goal')->nullable();
             $table->float('protein_goal')->nullable();
             $table->float('carbs_goal')->nullable();

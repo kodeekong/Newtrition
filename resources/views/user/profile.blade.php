@@ -1,4 +1,3 @@
-@ -1,77 +1,62 @@
 @extends('layouts.app')
 
 @section('title', 'Dashboard')
