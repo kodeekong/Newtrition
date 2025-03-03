@@ -169,7 +169,7 @@ button:hover {
             <option value="">Select Activity Level</option>
             <option value="light">Light</option>
             <option value="moderate">Moderate</option>
-            <option value="very_active">Very Active</option>
+            <option value="very_active">Very  Active</option>
         </select>
 
         <label for="goal">Goal:</label>

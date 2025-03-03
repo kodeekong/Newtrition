@@ -1,12 +1,10 @@
 <?php
-
-
 namespace App\Http\Controllers;
 
 use App\Models\Profile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
+use App\Models\TrackingNutrition;
 
 class ProfileController extends Controller
 {
@@ -25,16 +23,21 @@ class ProfileController extends Controller
 
     public function showForm()
     {
+        // Get the logged-in user's ID
         $userId = Auth::id();
-        
+    
+        // Check if the user already has a profile
         $profile = Profile::where('user_id', $userId)->first();
-        
+    
+        // If the user already has a profile, redirect them to the profile page
         if ($profile) {
-            return redirect()->route('profile'); 
+            return redirect()->route('user.profile'); // Redirect to the profile page
         }
     
-        return view('personal');
+        // If the user does not have a profile, show the personal form to complete their profile
+        return view('user.personal'); // Redirect to the personal page to complete the profile
     }
+    
     
 
     public function submitForm(Request $request)
@@ -79,54 +82,84 @@ class ProfileController extends Controller
 
     return view('user.profile', compact('profile'));
     }
-
-
-    public function calculateDailyCalorieNeeds($userId)
+    
+    public function createNutritionTracking()
     {
-        $userId = Auth::id();
-        $profile = Profile::where('user_id', $userId)->first();
-
+        $userId = Auth::id(); // Get the current logged-in user's ID
+        $profile = Profile::where('user_id', $userId)->first(); // Get the user's profile
+    
+        dd($profile);
+        // Check if profile exists
         if (!$profile) {
-            return response()->json(['error' => 'Profile not found'], 404);
+            return redirect()->route('personal'); // Handle case where profile doesn't exist
         }
-
-        $heightInInches = ($profile->height_ft * 12) + $profile->height_inch;
-        $weightInLbs = $profile->weight;
+    
+        // Extract profile data
         $age = $profile->age;
+        $height_cm = $profile->height_inch * 2.54; // Convert inches to cm
+        $weight_kg = $profile->weight * 0.453592; // Convert pounds to kg
         $gender = $profile->gender;
-
-        if ($weightInLbs <= 0 || $heightInInches <= 0 || $age <= 0) {
-            return response()->json(['error' => 'Invalid profile data'], 400);
-        }
-
-        // Calculate BMR using the Harris-Benedict equation
-        $bmr = $this->calculateBMR($gender, $weightInLbs, $heightInInches, $age);
-        $activityMultiplier = $this->getActivityMultiplier($profile->activity_level);
-        $tdee = $bmr * $activityMultiplier;
-
-        return response()->json(['tdee' => $tdee]);
+        $activity_level = $profile->activity_level;
+    
+        // Calculate BMR and TDEE
+        $bmr = $this->calculateBMR($age, $height_cm, $weight_kg, $gender);
+        $tdee = $this->calculateTDEE($bmr, $activity_level);
+    
+        // Set nutritional goals based on TDEE
+        $calories_goal = $tdee; // Default to TDEE for maintenance
+        $protein_goal = $weight_kg * 1.6; // Example: 1.6g of protein per kg of body weight
+        $carbs_goal = $tdee * 0.45 / 4; // Assuming 45% of calories from carbs (4 calories per gram)
+        $fat_goal = $tdee * 0.3 / 9; // Assuming 30% of calories from fats (9 calories per gram)
+    
+        // Create a new tracking record in the tracking_nutrition table
+        TrackingNutrition::create([
+            'user_id' => $userId,
+            'date' => now(), // Current date
+            'calories_consumed' => 0, // Default to 0, will update later
+            'protein_consumed' => 0, // Default to 0, will update later
+            'carbs_consumed' => 0, // Default to 0, will update later
+            'fat_consumed' => 0, // Default to 0, will update later
+            'calories_goal' => $calories_goal,
+            'protein_goal' => $protein_goal,
+            'carbs_goal' => $carbs_goal,
+            'fat_goal' => $fat_goal,
+        ]);
+    
+        // Redirect to the profile page after tracking creation
+        return redirect()->route('profile');
     }
-
-    // Helper method to calculate BMR (No need to convert weight or height)
-    private function calculateBMR($gender, $weightInLbs, $heightInInches, $age)
+    
+    public function calculateBMR($age, $height_cm, $weight_kg, $gender)
     {
-        // Harris-Benedict equation
-        if ($gender == 'male') {
-            return 66 + (6.23 * $weightInLbs) + (12.7 * $heightInInches) - (6.8 * $age);
-        } else {
-            return 655 + (4.35 * $weightInLbs) + (4.7 * $heightInInches) - (4.7 * $age);
+        // Calculate BMR based on gender and other inputs
+        if ($gender === 'male') {
+            return 66.5 + (13.75 * $weight_kg) + (5.003 * $height_cm) - (6.755 * $age);
+        } elseif ($gender === 'female') {
+            return 655.1 + (9.563 * $weight_kg) + (1.850 * $height_cm) - (4.676 * $age);
         }
+        return null; // Invalid gender
     }
-
-    private function getActivityMultiplier($activityLevel)
+    
+    public function calculateTDEE($bmr, $activity_level)
     {
-        $activityMultipliers = [
-            'very_active' => 1.9,
-            'moderately_active' => 1.55,
-            'lightly_active' => 1.375,
-            'sedentary' => 1.2,
-        ];
-
-        return $activityMultipliers[$activityLevel] ?? 1.2; // Default to sedentary if no match
+        // Set default activity multiplier
+        $activity_multiplier = 1.2; // Sedentary (if activity level is not set correctly)
+    
+        // Adjust activity multiplier based on user activity level
+        switch ($activity_level) {
+            case 'light':
+                $activity_multiplier = 1.375;
+                break;
+            case 'moderate':
+                $activity_multiplier = 1.55;
+                break;
+            case 'very_active':
+                $activity_multiplier = 1.725;
+                break;
+            // Add other activity levels if needed
+        }
+    
+        // Return TDEE (Total Daily Energy Expenditure)
+        return $bmr * $activity_multiplier;
     }
-}
+}    

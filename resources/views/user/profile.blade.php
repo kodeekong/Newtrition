@@ -17,6 +17,7 @@
             <p><strong>Gender:</strong> {{ $profile->gender }}</p>
             <p><strong>Activity Level:</strong> {{ $profile->activity_level }}</p>
             <p><strong>Goal:</strong> {{ $profile->goal }}</p>
+</div>
         </div>
 
         <!-- Daily Calorie Calculation Section -->
