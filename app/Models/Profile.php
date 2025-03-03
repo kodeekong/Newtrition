@@ -19,6 +19,10 @@ class Profile extends Model
         'goal',
     ];
 
+    public function trackingNutrition()
+    {
+        return $this->hasMany(TrackingNutrition::class, 'user_id', 'id'); 
+    }
 
     public function user()
     {

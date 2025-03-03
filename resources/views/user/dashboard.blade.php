@@ -7,6 +7,12 @@
 
         <h1>Welcome to Your Dashboard, {{ Auth::user()->name }}!</h1>
         <p>Here you can see your profile information, daily calorie needs, and more.</p>
+        
+    <p><strong>TDEE (Calories for daily maintenance):</strong> {{ number_format($profile->trackingNutrition->calories_goal, 2) }} kcal</p>
+    <p><strong>Calories Goal:</strong> {{ number_format($profile->trackingNutrition->calories_goal, 2) }} kcal</p>
+    <p><strong>Protein Goal:</strong> {{ number_format($profile->trackingNutrition->protein_goal, 2) }} g</p>
+    <p><strong>Carbs Goal:</strong> {{ number_format($profile->trackingNutrition->carbs_goal, 2) }} g</p>
+    <p><strong>Fat Goal:</strong> {{ number_format($profile->trackingNutrition->fat_goal, 2) }} g</p>
 
         <!-- Here, you can add additional content, like a calorie chart or any user-specific data -->
         <div class="calorie-chart">
