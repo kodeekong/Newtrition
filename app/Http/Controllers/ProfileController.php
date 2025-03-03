@@ -23,28 +23,28 @@ class ProfileController extends Controller
             'weight' => 'required|numeric|min:3|max:1000',
             'height' => 'required|integer|min:0|max:120',
             'activity_level' => 'required|in:light,moderate,very_active',
-            'goal' => 'required|in:gain_weight,maintain_weight,lose_weight',  // Add goal validation
+            'goal' => 'required|in:gain_weight,maintain_weight,lose_weight', 
         ]);
     
         $userId = Auth::id();
         if (!$userId) {
             return back()->withErrors(['error' => 'You must be logged in to submit your profile.']);
         }
-    
-        Profile::create([
-            'user_id' => $userId,
+
+        $profile = Profile::updateOrCreate(
+            ['user_id' => $userId], 
+            [
             'gender' => $validated['gender'],
             'weight' => $validated['weight'],
             'height_inch' => $validated['height'],
             'activity_level' => $validated['activity_level'],
             'age' => $validated['age'],
-            'goal' => $validated['goal'], // Add goal to database insert
-        ]);
-    
-        return redirect()->route('profile')->with('success', 'Profile updated successfully!');
-    }
-    
+            'goal' => $validated['goal'],
+            ]
+        );
 
+        return redirect()->route('profile')->with('success', 'Profile updated successfully!');
+        }
     
 
     public function showProfile(Request $request)
