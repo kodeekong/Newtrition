@@ -57,7 +57,6 @@ class AuthController extends Controller
         return view('user.personal');
     }
 
-    // Handle the login request
     public function login(Request $request)
     {
         $request->validate([

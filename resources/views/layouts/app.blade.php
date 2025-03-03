@@ -55,6 +55,22 @@
             color: #B65449; /* Maroon */
         }
 
+        /* Logout Button Styling */
+        .logout-button {
+            background-color: #B65449; /* Maroon */
+            color: white;
+            padding: 10px 20px;
+            font-weight: 600;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .logout-button:hover {
+            background-color: #4195be; /* Turquoise */
+        }
+
         /* Main content styling */
         main {
             padding: 40px 20px;
@@ -96,34 +112,6 @@
             margin-bottom: 30px;
         }
 
-        .cta-buttons .btn {
-            text-decoration: none;
-            padding: 12px 30px;
-            border-radius: 5px;
-            font-weight: 600;
-            margin: 10px;
-            display: inline-block;
-            transition: background-color 0.3s ease;
-        }
-
-        .cta-buttons .btn-primary {
-            background-color: #4195be; /* Turquoise */
-            color: white;
-        }
-
-        .cta-buttons .btn-primary:hover {
-            background-color: #B65449; /* Maroon */
-        }
-
-        .cta-buttons .btn-secondary {
-            background-color: #4195be; /* Maroon */
-            color: white;
-        }
-
-        .cta-buttons .btn-secondary:hover {
-            background-color: #B65449; /* Turquoise */
-        }
-
     </style>
 </head>
 <body>
@@ -135,7 +123,12 @@
                 <ul>
                     <li><a href="{{ route('dashboard') }}">Dashboard</a></li>
                     <li><a href="{{ route('profile') }}">Profile</a></li>
-                    <li><a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a></li>
+                    <li>
+                        <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                            @csrf
+                            <button type="submit" class="logout-button">Logout</button>
+                        </form>
+                    </li>
                 </ul>
             </nav>
         @else
@@ -157,6 +150,7 @@
         <p>&copy; 2025 Newtrition. All rights reserved.</p>
     </footer>
 
+
     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
         @csrf
     </form>
@@ -164,6 +158,7 @@
     <footer style="background-color: #4195be; color: white; text-align: center; padding: 20px;">
     <p>&copy; 2025 Newtrition. All rights reserved. | <a href="#" style="color: white;">Privacy Policy</a> | <a href="#" style="color: white;">Terms of Service</a></p>
 </footer>
+
 
 </body>
 </html>
