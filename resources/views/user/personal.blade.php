@@ -172,6 +172,13 @@ button:hover {
             <option value="lightly_active">Lightly Active</option>
         </select>
 
+        <label for="goal">Goal:</label>
+        <select id="goal" name="goal" required>
+            <option value="gain weight">Gain weight</option>
+            <option value="maintain weight">Maintain weight</option>
+            <option value="lose weight">Lose weight</option>
+        </select>
+
         <button type="submit">Submit</button>
 
     </form>

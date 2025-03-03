@@ -16,6 +16,7 @@ class Profile extends Model
         'weight',
         'height_inch',
         'activity_level',
+        'goal',
     ];
 
 

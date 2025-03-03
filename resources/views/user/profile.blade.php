@@ -25,11 +25,20 @@
             <!-- You can add the logic to calculate and display TDEE here -->
         </div>
 
+
         <!-- Calorie Chart Section -->
         <div class="calorie-chart">
             <canvas id="calorieGraph"></canvas>
         </div>
     </div>
+    <form>
+        <p><strong>Activity Level:</strong> {{ $profile->activity_level }}</p>
+        <p><strong>Goal:</strong> {{ $profile->goal }}</p>
+        <p><strong>Weight:</strong> {{ $profile->weight }} lb</p>
+        <p><strong>Height:</strong> {{ intdiv($profile->height_inch, 12) }}' {{ $profile->height_inch % 12 }}"</p>
+        <p><strong>Gender:</strong> {{ $profile->gender }}</p>
+        <p><strong>Age:</strong> {{ $profile->age }}</p>
+
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
