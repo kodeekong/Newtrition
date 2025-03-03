@@ -45,6 +45,7 @@ class ProfileController extends Controller
         if (!$userId) {
             return back()->withErrors(['error' => 'You must be logged in to submit your profile.']);
         }
+    
         $profile = Profile::updateOrCreate(
             ['user_id' => $userId], 
             [
@@ -60,10 +61,10 @@ class ProfileController extends Controller
         return redirect()->route('profile')->with('success', 'Profile updated successfully!');
         }
 
-    public function showProfile()
+    public function showProfile(Request $request)
     {
-        $userId = Auth::id();
-        $profile = Profile::where('user_id', $userId)->first();
+        $profile = Auth::user()->profile;
+        return view('user.profile', compact('profile')); 
 
         if (!$profile) {
          return redirect()->route('personal')->withErrors(['error' => 'Please complete your profile first.']);
