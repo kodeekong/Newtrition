@@ -10,6 +10,21 @@ use Illuminate\Support\Facades\Auth;
 
 class ProfileController extends Controller
 {
+
+    public function showDashboard()
+    {
+        // Get the authenticated user's profile
+        $user = Auth::user();
+        $profile = $user->profile; // Assuming the user has one profile associated with them
+
+        // Check if the profile exists, if not you can return a message or redirect
+        if (!$profile) {
+            return redirect()->route('profile')->with('error', 'Please complete your profile before accessing the dashboard.');
+        }
+
+        return view('user.dashboard', compact('user', 'profile')); 
+    }
+
     public function showForm(Request $request)
     {
         return view('user.personal'); 
