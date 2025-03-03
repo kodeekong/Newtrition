@@ -10,7 +10,7 @@ class Profile extends Model
     use HasFactory;
     
     protected $fillable = [
-        'user_id',  // foreign key that links to the users table
+        'user_id',  
         'age',
         'gender',
         'weight',
