@@ -33,7 +33,7 @@ class ProfileController extends Controller
             return redirect()->route('profile'); 
         }
     
-        return view('personal');
+        return view('user.personal');
     }
     
 

@@ -13,7 +13,7 @@ class FoodController extends Controller
     // Show food search form and list all foods
     public function search()
     {
-        $foods = Food::all(); // Add pagination or filter logic if needed
+        $foods = Food::paginate(10); // Paginate with 10 results per page
         return view('food.search', compact('foods'));
     }
 
@@ -26,7 +26,7 @@ class FoodController extends Controller
             $query->where('name', 'like', '%' . $request->name . '%');
         }
 
-        $foods = $query->get();
+        $foods = $query->paginate(10); // Paginate results based on search query
         return view('food.search', compact('foods'));
     }
 
