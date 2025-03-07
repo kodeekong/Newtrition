@@ -17,13 +17,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->date('date');
-            $table->enum('status', ['today', 'yesterday', 'last_week', 'custom'])->default('today');
-            
-            $table->float('calories_consumed')->nullable();
-            $table->float('protein_consumed')->nullable();
-            $table->float('carbs_consumed')->nullable();
-            $table->float('fat_consumed')->nullable();
 
+            $table->float('calories_consumed')->default(0);
+            $table->float('protein_consumed')->default(0);
+            $table->float('carbs_consumed')->default(0);
+            $table->float('fat_consumed')->default(0);
 
             $table->float('calories_goal')->nullable();
             $table->float('protein_goal')->nullable();
