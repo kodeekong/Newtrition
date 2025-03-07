@@ -2,90 +2,77 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Food;
-use App\Models\FoodEntry;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 
 class FoodController extends Controller
 {
-    // Show food search form and list all foods
+    // Show food search form and list all foods (optional)
     public function search()
     {
-        $foods = Food::paginate(10); // Paginate with 10 results per page
-        return view('food.search', compact('foods'));
+        return view('food.search');
     }
 
     // Handle food search functionality
     public function searchFood(Request $request)
     {
-        $query = Food::query();
+        // Define Open Food Facts API URL
+        $apiUrl = 'https://world.openfoodfacts.org/cgi/search.pl';
         
-        if ($request->has('name')) {
-            $query->where('name', 'like', '%' . $request->name . '%');
+        // Make sure the name parameter is present in the request
+        $query = $request->input('name');
+
+        // If no query is provided, redirect back with an error message
+        if (empty($query)) {
+            return redirect()->route('food.search')->with('error', 'Please enter a food name to search.');
         }
 
-        $foods = $query->paginate(10); // Paginate results based on search query
-        return view('food.search', compact('foods'));
-    }
-
-    // Add food to the user's food entries
-    public function addFood(Request $request)
-    {
-        $request->validate([
-            'food_id' => 'required|exists:foods,id',
-            'quantity' => 'required|numeric|min:0',
-            'portion_size' => 'required|in:small,medium,large',
-            'date' => 'required|date',
-        ]);
-
-        FoodEntry::create([
-            'user_id' => Auth::id(),
-            'food_id' => $request->food_id,
-            'quantity' => $request->quantity,
-            'portion_size' => $request->portion_size,
-            'date' => $request->date,
-        ]);
-
-        return redirect()->route('food.search')->with('success', 'Food added successfully!');
-    }
-
-    // Search food via Open Food Facts API
-    public function searchOpenFoodFacts(Request $request)
-    {
-        $response = Http::get("https://world.openfoodfacts.org/cgi/search.pl", [
-            'search_terms' => $request->name,
+        // Make API request to Open Food Facts
+        $response = Http::get($apiUrl, [
+            'search_terms' => $query,
             'json' => true,
-            'page_size' => 10,
+            'page_size' => 10, // Limit the number of results
         ]);
 
-        $foods = $response->json()['products'] ?? [];
-        return view('food.search', compact('foods'));
+        // Check if the response was successful
+        if ($response->successful()) {
+            $foods = $response->json()['products'] ?? [];
+
+            // Pass the data to the view
+            return view('food.search', compact('foods'));
+        } else {
+            // Handle API failure (in case the request fails)
+            return redirect()->route('food.search')->with('error', 'Failed to fetch data from Open Food Facts.');
+        }
     }
 
-    // Add food from Open Food Facts to the database
-    public function addOpenFoodToDatabase($id)
+    
+    public function getProductByBarcode($barcode)
     {
-        $response = Http::get("https://world.openfoodfacts.org/api/v0/product/{$id}.json");
-        $data = $response->json();
+        // API request to Open Food Facts using the barcode
+        $response = Http::get("https://world.openfoodfacts.org/api/v0/product/{$barcode}.json");
 
-        $product = $data['product'];
+        if ($response->successful()) {
+            $product = $response->json()['product'];
 
-        // Save the food to your database
-        $food = Food::create([
-            'name' => $product['product_name'] ?? 'Unknown',
-            'calories' => $product['nutriments']['energy-kcal'] ?? 0,
-            'protein' => $product['nutriments']['proteins'] ?? 0,
-            'carbohydrates' => $product['nutriments']['carbohydrates'] ?? 0,
-            'fat' => $product['nutriments']['fat'] ?? 0,
-            'sodium' => $product['nutriments']['sodium'] ?? 0,
-            'fiber' => $product['nutriments']['fiber'] ?? 0,
-            'sugar' => $product['nutriments']['sugars'] ?? 0,
-            'ingredients' => $product['ingredients_text'] ?? 'No ingredients listed',
-            'image_url' => $product['image_url'] ?? null,
-        ]);
+            // You can return the product data as JSON to the frontend
+            return response()->json($product);
+        } else {
+            return response()->json(['error' => 'Product not found.'], 404);
+        }
+    }
 
-        return redirect()->route('food.search')->with('success', 'Food added successfully from Open Food Facts!');
+
+    public function getSuggestedFoods()
+    {
+        // This could be based on user preferences, random selection, or any algorithm.
+        // For demonstration, we're returning mock data.
+        $suggestedFoods = [
+            ['name' => 'Smoothie A', 'description' => 'A healthy smoothie with spinach and banana.'],
+            ['name' => 'Protein Bar', 'description' => 'High-protein bar with peanut butter.'],
+            ['name' => 'Green Juice', 'description' => 'A detoxifying juice made with kale and apple.'],
+        ];
+
+        return response()->json($suggestedFoods);
     }
 }

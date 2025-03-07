@@ -35,6 +35,8 @@ Route::prefix('food')->name('food.')->middleware('auth')->group(function () {
     Route::get('search/open-food-facts', [FoodController::class, 'searchOpenFoodFacts'])->name('search.openFoodFacts'); // Search Open Food Facts API
     Route::post('add', [FoodController::class, 'addFood'])->name('add'); // Add food to food entries
     Route::get('add/{id}', [FoodController::class, 'addOpenFoodToDatabase'])->name('add.openFood'); // Add food from Open Food Facts to the database
+    Route::get('/food/barcode/{barcode}', [FoodController::class, 'getFoodByBarcode']);
+
 });
 
 
