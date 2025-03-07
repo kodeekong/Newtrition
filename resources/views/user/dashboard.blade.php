@@ -8,10 +8,23 @@
         <h1>Welcome to Your Dashboard, {{ Auth::user()->name }}!</h1>
         <p>Here you can see your profile information, daily calorie needs, and more.</p>
 
-        <!-- Here, you can add additional content, like a calorie chart or any user-specific data -->
-        <div class="calorie-chart">
-            <canvas id="calorieGraph"></canvas>
+        <!-- Button to Toggle the Calorie Graph -->
+        <button id="toggleGraphBtn" class="btn btn-primary">View Calorie Graph</button>
+
+        <!-- Collapsible Graph Section (Initially off-screen or minimized) -->
+        <div id="graphContainer" style="display:none; position: fixed; bottom: 20px; right: 20px; width: 320px; height: 240px; transition: transform 0.3s ease-in-out;">
+            <div class="calorie-chart">
+                <canvas id="calorieGraph" width="300" height="200"></canvas>
+            </div>
         </div>
+
+        <!-- Personalized Content (e.g., Nutrition Articles) -->
+        <div class="personalized-content">
+            <h2>Nutrition!</h2>
+            <p>Based on your profile, we’ve tailored this  just for you...</p>
+            <!-- Add personalized articles here -->
+        </div>
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -38,6 +51,24 @@
                             max: 300
                         }
                     }
+                }
+            });
+
+            // Toggle the graph container on button click
+            const toggleBtn = document.getElementById('toggleGraphBtn');
+            const graphContainer = document.getElementById('graphContainer');
+
+            toggleBtn.addEventListener('click', function() {
+                if (graphContainer.style.display === 'none') {
+                    graphContainer.style.display = 'block';
+                    graphContainer.style.transform = 'translateX(0)'; // Slide it into view
+                    toggleBtn.textContent = 'Hide Calorie Graph';
+                } else {
+                    graphContainer.style.transform = 'translateX(200%)'; // Slide it out of view
+                    setTimeout(function() {
+                        graphContainer.style.display = 'none';
+                    }, 300); // Hide it after the transition
+                    toggleBtn.textContent = 'View Calorie Graph';
                 }
             });
         });
