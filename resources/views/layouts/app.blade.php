@@ -8,12 +8,18 @@
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <style>
         /* General body and layout styling */
-        body {
+        body, html {
             font-family: 'avenir';
             margin: 0;
             padding: 0;
+            height: 100%;
             background-color: #F2F7F6;
             color: #333;
+        }
+
+        .container {
+            min-height: 80vh;
+            padding-bottom: 50px;
         }
 
         /* Header styling */
@@ -78,6 +84,8 @@
 
         /* Footer section */
         footer {
+            position: fixed;
+            padding: 10px 0;
             background-color: #4195be; /* Turquoise */
             color: white;
             text-align: center;
