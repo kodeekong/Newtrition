@@ -5,6 +5,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class TrackingNutrition extends Model
 {
+    use HasFactory;
+
+    protected $table = 'tracking_nutrition';
+
     protected $fillable = [
         'user_id', 
         'date', 

@@ -1,10 +1,13 @@
 <?php
+
+
 namespace App\Http\Controllers;
 
 use App\Models\Profile;
+use App\Models\TrackingNutrition;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\TrackingNutrition;
+
 
 class ProfileController extends Controller
 {
@@ -41,16 +44,16 @@ class ProfileController extends Controller
     
     
 
-    public function submitForm(Request $request)
-    {
-        $validated = $request->validate([
-            'age' => 'required|integer|min:14|max:100',
-            'gender' => 'required|in:male,female',
-            'weight' => 'required|numeric|min:3|max:1000',
-            'height' => 'required|integer|min:0|max:120',
-            'activity_level' => 'required|in:light,moderate,very_active',
-            'goal' => 'required|in:gain_weight,maintain_weight,lose_weight', 
-        ]);
+public function submitForm(Request $request)
+{
+    $validated = $request->validate([
+        'age' => 'required|integer|min:14|max:100',
+        'gender' => 'required|in:male,female',
+        'weight' => 'required|numeric|min:3|max:1000',
+        'height' => 'required|integer|min:0|max:120',
+        'activity_level' => 'required|in:light,moderate,very_active',
+        'goal' => 'required|in:gain_weight,maintain_weight,lose_weight',
+    ]);
     
         $userId = Auth::id();
         if (!$userId) {
@@ -69,98 +72,59 @@ class ProfileController extends Controller
             ]
         );
 
-        return redirect()->route('profile')->with('success', 'Profile updated successfully!');
-        }
+    return redirect()->route('profile')->with('success', 'Profile updated successfully!');
+}
 
     public function showProfile(Request $request)
     {
         $profile = Auth::user()->profile;
         return view('user.profile', compact('profile')); 
-
-        if (!$profile) {
-         return redirect()->route('personal')->withErrors(['error' => 'Please complete your profile first.']);
     }
 
-    return view('user.profile', compact('profile'));
-    }
-    
-    public function createNutritionTracking()
+    public function calculateDailyCalorieNeeds($userId)
     {
-        $userId = Auth::id(); // Get the current logged-in user's ID
-        $profile = Profile::where('user_id', $userId)->first(); // Get the user's profile
+        $userId = Auth::id();
+        $profile = Profile::where('user_id', $userId)->first();
     
-        dd($profile);
-        // Check if profile exists
         if (!$profile) {
-            return redirect()->route('personal'); // Handle case where profile doesn't exist
+            return response()->json(['error' => 'Profile not found'], 404);
         }
     
-        // Extract profile data
+        $heightInInches = ($profile->height_ft * 12) + $profile->height_inch;
+        $weightInLbs = $profile->weight;
         $age = $profile->age;
-        $height_cm = $profile->height_inch * 2.54; // Convert inches to cm
-        $weight_kg = $profile->weight * 0.453592; // Convert pounds to kg
         $gender = $profile->gender;
-        $activity_level = $profile->activity_level;
     
-        // Calculate BMR and TDEE
-        $bmr = $this->calculateBMR($age, $height_cm, $weight_kg, $gender);
-        $tdee = $this->calculateTDEE($bmr, $activity_level);
-    
-        // Set nutritional goals based on TDEE
-        $calories_goal = $tdee; // Default to TDEE for maintenance
-        $protein_goal = $weight_kg * 1.6; // Example: 1.6g of protein per kg of body weight
-        $carbs_goal = $tdee * 0.45 / 4; // Assuming 45% of calories from carbs (4 calories per gram)
-        $fat_goal = $tdee * 0.3 / 9; // Assuming 30% of calories from fats (9 calories per gram)
-    
-        // Create a new tracking record in the tracking_nutrition table
-        TrackingNutrition::create([
-            'user_id' => $userId,
-            'date' => now(), // Current date
-            'calories_consumed' => 0, // Default to 0, will update later
-            'protein_consumed' => 0, // Default to 0, will update later
-            'carbs_consumed' => 0, // Default to 0, will update later
-            'fat_consumed' => 0, // Default to 0, will update later
-            'calories_goal' => $calories_goal,
-            'protein_goal' => $protein_goal,
-            'carbs_goal' => $carbs_goal,
-            'fat_goal' => $fat_goal,
-        ]);
-    
-        // Redirect to the profile page after tracking creation
-        return redirect()->route('profile');
-    }
-    
-    public function calculateBMR($age, $height_cm, $weight_kg, $gender)
-    {
-        // Calculate BMR based on gender and other inputs
-        if ($gender === 'male') {
-            return 66.5 + (13.75 * $weight_kg) + (5.003 * $height_cm) - (6.755 * $age);
-        } elseif ($gender === 'female') {
-            return 655.1 + (9.563 * $weight_kg) + (1.850 * $height_cm) - (4.676 * $age);
-        }
-        return null; // Invalid gender
-    }
-    
-    public function calculateTDEE($bmr, $activity_level)
-    {
-        // Set default activity multiplier
-        $activity_multiplier = 1.2; // Sedentary (if activity level is not set correctly)
-    
-        // Adjust activity multiplier based on user activity level
-        switch ($activity_level) {
-            case 'light':
-                $activity_multiplier = 1.375;
-                break;
-            case 'moderate':
-                $activity_multiplier = 1.55;
-                break;
-            case 'very_active':
-                $activity_multiplier = 1.725;
-                break;
-            // Add other activity levels if needed
+        if ($weightInLbs <= 0 || $heightInInches <= 0 || $age <= 0) {
+            return response()->json(['error' => 'Invalid profile data'], 400);
         }
     
-        // Return TDEE (Total Daily Energy Expenditure)
-        return $bmr * $activity_multiplier;
+        $bmr = $this->calculateBMR($gender, $weightInLbs, $heightInInches, $age);
+        $activityMultiplier = $this->getActivityMultiplier($profile->activity_level);
+        $tdee = $bmr * $activityMultiplier;
+    
+        $calories = round($tdee);
+        $proteinGoal = round(($calories * 0.3) / 4); 
+        $carbsGoal = round(($calories * 0.5) / 4);   
+        $fatGoal = round(($calories * 0.2) / 9);     
+    
+        $currentDate = now()->toDateString();
+    
+        $nutrition = TrackingNutrition::updateOrCreate(
+            ['user_id' => $userId, 'date' => $currentDate], 
+            [
+                'calories_goal' => $calories,
+                'protein_goal' => $proteinGoal,
+                'carbs_goal' => $carbsGoal,
+                'fat_goal' => $fatGoal,
+                'calories_consumed' => 0,
+                'protein_consumed' => 0,
+                'carbs_consumed' => 0,
+                'fat_consumed' => 0,
+            ]
+        );
+    
+        return response()->json(['message' => 'Nutrition tracking updated', 'data' => $nutrition]);
     }
-}    
+    
+}
