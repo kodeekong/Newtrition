@@ -27,9 +27,17 @@ public function submitForm(Request $request)
         'goal' => 'required|in:gain_weight,maintain_weight,lose_weight',
     ]);
     
-    $userId = Auth::id();
-    if (!$userId) {
-        return back()->withErrors(['error' => 'You must be logged in to submit your profile.']);
+        // Check if the user already has a profile
+        $profile = Profile::where('user_id', $userId)->first();
+    
+        // If the user already has a profile, redirect them to the profile page
+        if ($profile) {
+            return redirect()->route('user.profile'); // Redirect to the profile page
+        }
+    
+        // If the user does not have a profile, show the personal form to complete their profile
+        return view('user.personal'); // Redirect to the personal page to complete the profile
+
     }
 
     Profile::create([
