@@ -1,6 +1,4 @@
 <?php
-
-
 namespace App\Http\Controllers;
 
 use App\Models\Profile;
@@ -22,7 +20,7 @@ class ProfileController extends Controller
         }
 
         return view('user.dashboard', compact('user', 'profile')); 
-    }
+    } 
 
     public function showForm()
     {
