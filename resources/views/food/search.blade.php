@@ -1,216 +1,134 @@
 @extends('layouts.app')
 
-@section('title', 'Search Food')
+@section('title', 'Food Search')
 
 @section('content')
+
 <style>
-    .card-title {
-        font-size: 1.2rem;
-        font-weight: bold;
+    .food-search {
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
     }
 
-    .card-text {
-        font-size: 1rem;
+    .food-search form {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
     }
 
-    .card img {
-        height: 200px;
-        object-fit: cover;
-        width: 100%;
+    .food-search input {
+        width: 300px;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        margin-right: 10px;
+    }
+
+    .food-search button {
+        padding: 10px 20px;
+        border-radius: 5px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+    }
+
+    .filter-options {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+        gap: 15px;
+    }
+
+    .food-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Adjust grid for responsiveness */
+        gap: 20px;
+        margin-top: 20px;
     }
 
     .food-item {
-        margin-bottom: 20px;
-    }
-
-    .filters-container {
-        margin-bottom: 20px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 15px;
-    }
-
-    .filter {
-        margin: 0;
-    }
-
-    .food-item-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 15px;
-        justify-content: space-around;
-    }
-
-    .food-card {
-        width: 100%;
-        max-width: 250px;
-        margin-bottom: 20px;
-        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    #scanner {
-        width: 100%;
-        height: auto;
-        border: 1px solid #ccc;
-        object-fit: contain;
-    }
-
-    #barcode-scanner {
-        display: none;
-        position: fixed;
-        top: 20%;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 80%;
-        background: white;
-        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        z-index: 9999;
+        background-color: #fff;
         padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
     }
 
-    .filters-container {
-        justify-content: space-between;
+    .food-item img {
+        max-width: 100%;
+        max-height: 150px;
+        object-fit: cover;
+        margin-bottom: 10px;
     }
 
-    #barcode-btn {
-        display: inline-block;
-        margin-left: 15px;
+    .food-item h4 {
+        margin-bottom: 10px;
+        font-size: 1.2rem;
     }
 
-    /* Responsive styles */
+    .food-item p {
+        font-size: 14px;
+        color: #555;
+        margin-bottom: 15px;
+    }
+
+    .food-item button {
+        margin-top: 10px;
+        padding: 8px 16px;
+        background-color: #2196F3;
+        color: white;
+        border: none;
+        border-radius: 5px;
+    }
+
     @media (max-width: 768px) {
-        .food-item-container {
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .filters-container {
-            flex-direction: column;
-            gap: 10px;
+        .food-list {
+            grid-template-columns: 1fr;  /* Stacks the items vertically on smaller screens */
         }
     }
 </style>
 
-<div class="container">
-    <h1 class="mb-4">Search for Food by Barcode or Name</h1>
+<div class="food-search">
+    <h1>Food Search</h1>
 
-    <!-- Search Form at the Top -->
-    <form action="{{ route('food.search.results') }}" method="GET" class="mb-4">
-        <input type="text" name="name" placeholder="Search by food name" value="{{ request('name') }}" class="form-control form-control-lg mb-3" style="max-width: 500px; margin: 0 auto;">
-        <button type="submit" class="btn btn-primary btn-lg btn-block">Search</button>
+    <!-- Food Search Form -->
+    <form method="GET" action="{{ route('food.search.results') }}">
+        <input type="text" name="name" placeholder="Search food...">
+        <button type="submit">Search</button>
     </form>
 
-    <!-- Filters: Alphabetical, Calorie Range -->
-    <div class="filters-container">
-        <form action="{{ route('food.search.results') }}" method="GET" class="mb-4 flex-grow-1">
-            <select name="order" class="form-control mb-2 filter">
-                <option value="asc" {{ request('order') == 'asc' ? 'selected' : '' }}>Alphabetical (A-Z)</option>
-                <option value="desc" {{ request('order') == 'desc' ? 'selected' : '' }}>Alphabetical (Z-A)</option>
-            </select>
-            <select name="calories_range" class="form-control mb-2 filter">
-                <option value="">Filter by Calories</option>
-                <option value="low" {{ request('calories_range') == 'low' ? 'selected' : '' }}>Low (0-100 kcal)</option>
-                <option value="medium" {{ request('calories_range') == 'medium' ? 'selected' : '' }}>Medium (100-500 kcal)</option>
-                <option value="high" {{ request('calories_range') == 'high' ? 'selected' : '' }}>High (500+ kcal)</option>
-            </select>
-            <button type="submit" class="btn btn-secondary">Apply Filters</button>
+    <!-- Filters Section -->
+    <div class="filter-options">
+        <form method="GET" action="{{ route('food.search.results') }}">
+            <input type="text" name="category" placeholder="Category">
+            <button type="submit">Filter by Category</button>
         </form>
-
-        <!-- Barcode Search Button -->
-        <button id="barcode-btn" class="btn btn-info" onclick="openBarcodeScanner()">Search by Barcode</button>
+        <form method="GET" action="{{ route('food.search.results') }}">
+            <input type="text" name="barcode" placeholder="Barcode">
+            <button type="submit">Filter by Barcode</button>
+        </form>
     </div>
 
-    <!-- Display Food List -->
-    <div class="food-item-container">
-        @if(isset($foods) && !empty($foods))
-            @foreach ($foods as $food)
-                <div class="food-card card">
-                    <img class="card-img-top" src="{{ $food['image_url'] ?? 'https://via.placeholder.com/250' }}" alt="{{ $food['product_name'] ?? 'Food Image' }}">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ $food['product_name'] ?? 'No name available' }}</h5>
-                        <p class="card-text">Calories: {{ $food['nutriments']['energy-kcal'] ?? 'N/A' }} kcal</p>
-                        <p class="card-text">Protein: {{ $food['nutriments']['proteins'] ?? 'N/A' }}g</p>
-                        <p class="card-text">Carbs: {{ $food['nutriments']['carbohydrates'] ?? 'N/A' }}g</p>
-                        <p class="card-text">Fat: {{ $food['nutriments']['fat'] ?? 'N/A' }}g</p>
-                    </div>
-                </div>
-            @endforeach
-        @else
-            <p>No foods found. Try a different search.</p>
-        @endif
+    <!-- Display search results (if any) -->
+    @if(isset($foods) && count($foods) > 0)
+    <div class="food-list">
+        <h3>Search Results</h3>
+        @foreach($foods as $food)
+        <div class="food-item">
+            <img src="{{ $food['image_url'] ?? 'default-image.jpg' }}" alt="{{ $food['product_name'] }}">
+            <h4>{{ $food['product_name'] }}</h4>
+            <p>{{ $food['ingredients_text'] ?? 'Ingredients information not available' }}</p>
+            <form method="POST" action="{{ route('food.add', $food['id']) }}">
+                @csrf
+                <button type="submit">Add to Profile</button>
+            </form>
+        </div>
+        @endforeach
     </div>
-
-    <!-- Scanned Product Info (Modal) -->
-    <div id="barcode-scanner">
-        <video id="scanner"></video>
-        <button class="btn btn-danger" onclick="closeBarcodeScanner()">Close Scanner</button>
-    </div>
+    @else
+    <p>No results found. Try searching for another food item.</p>
+    @endif
 </div>
-
-<script>
-    // Barcode Scanner Initialization
-    function openBarcodeScanner() {
-        document.getElementById('barcode-scanner').style.display = 'block';
-        startCamera();
-
-        // Initialize Quagga scanner
-        Quagga.init({
-            inputStream: {
-                name: "Live",
-                type: "LiveStream",
-                target: document.querySelector('#scanner'),
-            },
-            decoder: {
-                readers: ["ean_reader", "upc_reader"] // Barcode types to scan
-            }
-        }, function(err) {
-            if (err) {
-                console.log(err);
-                return;
-            }
-            Quagga.start();
-        });
-
-        // Handle barcode detection
-        Quagga.onDetected(function(result) {
-            const barcode = result.codeResult.code;
-            console.log("Barcode Detected: " + barcode);
-
-            fetch(`/food/barcode/${barcode}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data && data.product_name) {
-                        alert(`Product found: ${data.product_name}`);
-                        closeBarcodeScanner();
-                    } else {
-                        alert('Product not found.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching product data:', error);
-                    closeBarcodeScanner();
-                });
-        });
-    }
-
-    // Stop camera and close the barcode scanner
-    function closeBarcodeScanner() {
-        document.getElementById('barcode-scanner').style.display = 'none';
-        Quagga.stop(); // Stop the barcode scanner
-    }
-
-    // Function to start the camera feed
-    function startCamera() {
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-            .then(function(stream) {
-                var videoElement = document.getElementById('scanner');
-                videoElement.srcObject = stream;
-                videoElement.play();
-            })
-            .catch(function(error) {
-                console.log("Error accessing camera: ", error);
-            });
-    }
-</script>
 
 @endsection
