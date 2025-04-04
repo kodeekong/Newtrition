@@ -27,16 +27,26 @@ Route::middleware('auth')->group(function () {
 
 Route::get('home', [AuthController::class, 'home'])->name('home'); 
 
-//Food
 
 Route::prefix('food')->name('food.')->middleware('auth')->group(function () {
-    Route::get('search', [FoodController::class, 'search'])->name('search'); // Show search form and list all foods
-    Route::get('search/results', [FoodController::class, 'searchFood'])->name('search.results'); // Handle food search
-    Route::get('search/open-food-facts', [FoodController::class, 'searchOpenFoodFacts'])->name('search.openFoodFacts'); // Search Open Food Facts API
-    Route::post('add', [FoodController::class, 'addFood'])->name('add'); // Add food to food entries
-    Route::get('add/{id}', [FoodController::class, 'addOpenFoodToDatabase'])->name('add.openFood'); // Add food from Open Food Facts to the database
-    Route::get('/food/barcode/{barcode}', [FoodController::class, 'getFoodByBarcode']);
+    // Search for food form
+    Route::get('search', [FoodController::class, 'search'])->name('search');
+    Route::get('search/results', [FoodController::class, 'searchFood'])->name('search.results');
 
+    // Handle the Open Food Facts API interaction
+    Route::get('search/open-food-facts', [FoodController::class, 'searchOpenFoodFacts'])->name('search.openFoodFacts');
+
+    // Add food entries to user profile (Make sure this is a POST method)
+    Route::post('add/{foodId}', [FoodController::class, 'addFoodToProfile'])->name('add'); // Note: I added {foodId} here for better clarity
+    
+    // Barcode scanner route
+    Route::get('food/barcode/{barcode}', [FoodController::class, 'getFoodByBarcode'])->name('product');
+    
+    // Remove food from user's profile
+    Route::delete('remove/{foodEntryId}', [FoodController::class, 'removeFoodFromProfile'])->name('remove');
+    
+    // Get suggested foods based on the user's goal
+    Route::get('suggested', [FoodController::class, 'getSuggestedFoods'])->name('suggested');
 });
 
 
