@@ -1,3 +1,16 @@
+<style>
+.chart-container {
+    width: 400px;  /* Adjust size */
+    height: 400px; 
+    margin: auto;
+    position: relative;
+}
+
+.chart-container canvas {
+    display: block;
+}
+</style>
+
 @extends('layouts.app')
 
 @section('title', 'Dashboard')
@@ -17,52 +30,68 @@
             <p><strong>Gender:</strong> {{ $profile->gender }}</p>
             <p><strong>Activity Level:</strong> {{ $profile->activity_level }}</p>
             <p><strong>Goal:</strong> {{ $profile->goal }}</p>
-</div>
         </div>
 
-        <!-- Daily Calorie Calculation Section -->
-        <div class="daily-calories">
-            <h3>Calculate Your Daily Calorie Needs</h3>
-            <p>Your total daily energy expenditure (TDEE) is calculated based on your profile. This can help you manage your nutrition and fitness goals.</p>
-            <!-- You can add the logic to calculate and display TDEE here -->
-        </div>
-
-
-        <!-- Calorie Chart Section -->
-        <div class="calorie-chart">
-            <canvas id="calorieGraph"></canvas>
-        </div>
     </div>
-    <form>
-        
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const ctx = document.getElementById('calorieGraph').getContext('2d');
-            const calorieGraph = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Protein', 'Carbs', 'Fats'],
-                    datasets: [{
-                        label: 'Daily Calorie Needs',
-                        data: [
-                            
-                        ],  // Use dynamic data passed from the controller
-                        backgroundColor: ['#4caf50', '#ff9800', '#2196f3'],
-                        borderColor: ['#388e3c', '#f57c00', '#1976d2'],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 300  // Adjust based on the data
-                        }
-                    }
-                }
-            });
-        });
-    </script>
+
+    <div class="chart-container">
+    <canvas id="nutritionChart"></canvas>
+    <div id="caloriesText" 
+        style="
+        position: absolute; 
+        top: 50%; 
+        left: 50%; 
+        transform: translate(-50%, -50%); 
+        font-size: 18px;
+        font-weight: bold;
+        color: #4195be;">
+        0 kcal left
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    var ctx = document.getElementById('nutritionChart').getContext('2d');
+
+    var caloriesConsumed = {{ $nutrition->calories_consumed ?? 0 }};
+    var caloriesGoal = {{ $nutrition->calories_goal ?? 2310 }};
+    var caloriesLeft = caloriesGoal - caloriesConsumed;
+
+    document.getElementById('caloriesText').innerText = caloriesLeft + " kcal left"; // Update text dynamically
+
+    var calorieChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Consumed', 'Remaining'],
+            datasets: [{
+                data: [caloriesConsumed, caloriesLeft],
+                backgroundColor: ['#4195be', '#1a1a1a'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            cutout: '70%', // Ensures the center is visible
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+});
+</script>
+
+
+    <!-- Progress Bars -->
+    <div>
+        <p>Carbs: <span id="carbs">{{ $nutrition->carbs_consumed ?? 0 }}</span> / {{ $nutrition->carbs_goal ?? 346 }} g</p>
+        <progress value="{{ $nutrition->carbs_consumed ?? 0 }}" max="{{ $nutrition->carbs_goal ?? 346 }}"></progress>
+
+        <p>Fat: <span id="fat">{{ $nutrition->fat_consumed ?? 0 }}</span> / {{ $nutrition->fat_goal ?? 64 }} g</p>
+        <progress value="{{ $nutrition->fat_consumed ?? 0 }}" max="{{ $nutrition->fat_goal ?? 64 }}"></progress>
+
+        <p>Protein: <span id="protein">{{ $nutrition->protein_consumed ?? 0 }}</span> / {{ $nutrition->protein_goal ?? 86 }} g</p>
+        <progress value="{{ $nutrition->protein_consumed ?? 0 }}" max="{{ $nutrition->protein_goal ?? 86 }}"></progress>
+    </div>
+
 @endsection
