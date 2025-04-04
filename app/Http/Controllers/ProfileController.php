@@ -32,7 +32,7 @@ class ProfileController extends Controller
     
         // If the user already has a profile, redirect them to the profile page
         if ($profile) {
-            return redirect()->route('user.profile'); // Redirect to the profile page
+            return redirect()->route('profile'); // Redirect to the profile page
         }
     
         // If the user does not have a profile, show the personal form to complete their profile
@@ -40,18 +40,16 @@ class ProfileController extends Controller
 
     }
     
-    
-
-public function submitForm(Request $request)
-{
-    $validated = $request->validate([
-        'age' => 'required|integer|min:14|max:100',
-        'gender' => 'required|in:male,female',
-        'weight' => 'required|numeric|min:3|max:1000',
-        'height' => 'required|integer|min:0|max:120',
-        'activity_level' => 'required|in:light,moderate,very_active',
-        'goal' => 'required|in:gain_weight,maintain_weight,lose_weight',
-    ]);
+    public function submitForm(Request $request)
+    {
+        $validated = $request->validate([
+            'age' => 'required|integer|min:14|max:100',
+            'gender' => 'required|in:male,female',
+            'weight' => 'required|numeric|min:3|max:1000',
+            'height' => 'required|integer|min:0|max:120',
+            'activity_level' => 'required|in:light,moderate,very_active',
+            'goal' => 'required|in:gain_weight,maintain_weight,lose_weight',
+        ]);
     
         $userId = Auth::id();
         if (!$userId) {
@@ -61,17 +59,19 @@ public function submitForm(Request $request)
         $profile = Profile::updateOrCreate(
             ['user_id' => $userId], 
             [
-            'gender' => $validated['gender'],
-            'weight' => $validated['weight'],
-            'height_inch' => $validated['height'],
-            'activity_level' => $validated['activity_level'],
-            'age' => $validated['age'],
-            'goal' => $validated['goal'],
+                'gender' => $validated['gender'],
+                'weight' => $validated['weight'],
+                'height_inch' => $validated['height'],
+                'activity_level' => $validated['activity_level'],
+                'age' => $validated['age'],
+                'goal' => $validated['goal'],
             ]
         );
-
-    return redirect()->route('profile')->with('success', 'Profile updated successfully!');
-}
+    
+        $this->calculateDailyCalorieNeeds($userId);
+    
+        return redirect()->route('profile')->with('success', 'Profile updated successfully!');
+    }
 
     public function showProfile(Request $request)
     {
@@ -124,5 +124,26 @@ public function submitForm(Request $request)
     
         return response()->json(['message' => 'Nutrition tracking updated', 'data' => $nutrition]);
     }
-    
+
+    private function calculateBMR($gender, $weight, $height, $age){
+    if ($gender === 'male') {
+        return 66 + (6.23 * $weight) + (12.7 * $height) - (6.8 * $age);
+    } elseif ($gender === 'female') {
+        return 655 + (4.35 * $weight) + (4.7 * $height) - (4.7 * $age);
+    } else {
+        throw new \Exception("Invalid gender provided.");
+        }
+    }
+    private function getActivityMultiplier($activityLevel){
+    switch ($activityLevel) {
+        case 'light':
+            return 1.375; // Lightly active (light exercise/sports 1-3 days/week)
+        case 'moderate':
+            return 1.55; // Moderately active (moderate exercise/sports 3-5 days/week)
+        case 'very_active':
+            return 1.725; // Very active (hard exercise/sports 6-7 days a week)
+        default:
+            throw new \Exception("Invalid activity level provided.");
+        }
+    }   
 }

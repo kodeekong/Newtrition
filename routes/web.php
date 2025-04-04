@@ -16,7 +16,7 @@ Route::post('login', [AuthController::class, 'login']);
 Route::post('logout', [AuthController::class, 'logout'])->name('logout'); 
 
 Route::get('register', [AuthController::class, 'showRegistrationForm'])->name('register');
-Route::post('register', [AuthController::class, 'register']); // handle registration
+Route::post('register', [AuthController::class, 'register']);
 
 Route::middleware('auth')->group(function () {
     Route::get('/personal', [ProfileController::class, 'showForm'])->name('personal');
@@ -25,7 +25,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('auth')->get('/dashboard', [ProfileController::class, 'showDashboard'])->name('dashboard');
 });
 
-Route::get('home', [AuthController::class, 'home'])->name('home'); // Show registration form
+Route::get('home', [AuthController::class, 'home'])->name('home'); 
 
 //Food
 
