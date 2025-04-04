@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class TrackingNutrition extends Model
@@ -27,4 +28,3 @@ class TrackingNutrition extends Model
         return $this->belongsTo(Profile::class, 'user_id', 'id');
     }
 }
-
