@@ -28,7 +28,6 @@ Route::middleware('auth')->group(function () {
 Route::get('home', [AuthController::class, 'home'])->name('home'); 
 
 //Food
-
 Route::prefix('food')->name('food.')->middleware('auth')->group(function () {
     Route::get('search', [FoodController::class, 'search'])->name('search'); // Show search form and list all foods
     Route::get('search/results', [FoodController::class, 'searchFood'])->name('search.results'); // Handle food search
