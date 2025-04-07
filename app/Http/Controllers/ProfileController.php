@@ -14,13 +14,15 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
         $profile = $user->profile; 
-
+    
         if (!$profile) {
             return redirect()->route('profile')->with('error', 'Please complete your profile before accessing the dashboard.');
         }
-
-        return view('user.dashboard', compact('user', 'profile')); 
-    } 
+    
+        $nutrition = TrackingNutrition::where('user_id', $user->id)->latest()->first();
+    
+        return view('user.dashboard', compact('user', 'profile', 'nutrition'));
+    }
 
     public function showForm()
     {
