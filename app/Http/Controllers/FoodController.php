@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use App\Models\FoodEntry;
 
 class FoodController extends Controller
 {
@@ -74,5 +75,33 @@ class FoodController extends Controller
         ];
 
         return response()->json($suggestedFoods);
+    }
+
+    public function store(Request $request)
+    {
+        // Validate incoming request
+        $request->validate([
+            'food_name' => 'required|string|max:255',
+            'calories' => 'required|numeric',
+            'carbs' => 'required|numeric',
+            'fat' => 'required|numeric',
+            'protein' => 'required|numeric',
+            'quantity' => 'required|numeric',
+            'date' => 'required|date',
+        ]);
+
+        // Insert into the database
+        $foodEntry = new FoodEntry();
+        $foodEntry->user_id = auth()->id(); // Get the authenticated user's ID
+        $foodEntry->food_name = $request->food_name;
+        $foodEntry->calories = $request->calories;
+        $foodEntry->carbs = $request->carbs;
+        $foodEntry->fat = $request->fat;
+        $foodEntry->protein = $request->protein;
+        $foodEntry->quantity = $request->quantity;
+        $foodEntry->date = $request->date;
+        $foodEntry->save();
+
+        return response()->json(['success' => 'Food entry added successfully.']);
     }
 }

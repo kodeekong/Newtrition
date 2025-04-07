@@ -12,11 +12,18 @@ class CreateEntriesTable extends Migration
             $table->engine = 'InnoDB';
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('food_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            
+            // Remove food_id relationship
+            $table->unsignedBigInteger('food_id');
             $table->foreign('food_id')->references('id')->on('foods')->onDelete('cascade');
+            
+            $table->string('food_name');
+            $table->float('calories');
+            $table->float('carbs');
+            $table->float('fat');
+            $table->float('protein');
             $table->float('quantity');
-            $table->enum('portion_size', ['small', 'medium', 'large'])->default('medium');
             $table->date('date');
             $table->timestamps();
         });

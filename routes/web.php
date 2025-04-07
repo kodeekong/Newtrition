@@ -38,6 +38,9 @@ Route::prefix('food')->name('food.')->middleware('auth')->group(function () {
 
 });
 
+// Food Entry
+Route::post('/add-food', [FoodController::class, 'store'])->name('add.food');
+
 
 //Profile
 // Route::middleware(['auth'])->group(function () {

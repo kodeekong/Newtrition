@@ -11,9 +11,12 @@ class FoodEntry extends Model
 
     protected $fillable = [
         'user_id',
-        'food_id',
+        'food_name',
+        'calories',
+        'carbs',
+        'fat',
+        'protein',
         'quantity',
-        'portion_size',
         'date',
     ];
 
