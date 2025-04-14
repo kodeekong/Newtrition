@@ -28,6 +28,7 @@ Route::middleware('auth')->group(function () {
 Route::get('home', [AuthController::class, 'home'])->name('home'); 
 
 
+//Food
 Route::prefix('food')->name('food.')->middleware('auth')->group(function () {
     // Search for food form
     Route::get('search', [FoodController::class, 'search'])->name('search');
@@ -48,6 +49,9 @@ Route::prefix('food')->name('food.')->middleware('auth')->group(function () {
     // Get suggested foods based on the user's goal
     Route::get('suggested', [FoodController::class, 'getSuggestedFoods'])->name('suggested');
 });
+
+// Food Entry
+Route::post('/add-food', [FoodController::class, 'store'])->name('add.food');
 
 
 //Profile
