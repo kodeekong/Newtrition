@@ -24,8 +24,8 @@
     <select id="activity_level" name="activity_level" required>
         <option value="">Select Activity Level</option>
         <option value="very_active">Very Active</option>
-        <option value="moderately_active">Moderately Active</option>
-        <option value="lightly_active">Lightly Active</option>
+        <option value="moderate">Moderately Active</option>
+        <option value="light">Lightly Active</option>
     </select>
 
     <!-- Add weight goal -->
