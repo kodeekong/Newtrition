@@ -14,6 +14,10 @@
         overflow: hidden; /* Prevent scrolling */
     }
 
+    <div class="dashboard">
+        <h1>Welcome to Your Dashboard, {{ Auth::user()->name }}!</h1>
+        <p>Here you can see your profile information, daily calorie needs, and more.</p>
+
     .dashboard {
         width: 90%;
         max-width: 1000px;
