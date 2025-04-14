@@ -133,34 +133,39 @@ class FoodController extends Controller
 
         return response()->json($suggestedFoods);
     }
-}
-
 
     public function store(Request $request)
     {
-        // Validate incoming request
-        $request->validate([
+        $validated = $request->validate([
             'food_name' => 'required|string|max:255',
-            'calories' => 'required|numeric',
-            'carbs' => 'required|numeric',
-            'fat' => 'required|numeric',
-            'protein' => 'required|numeric',
-            'quantity' => 'required|numeric',
-            'date' => 'required|date',
+            'calories' => 'required|integer|min:0',
+            'carbs' => 'required|integer|min:0',
+            'fat' => 'required|integer|min:0',
+            'protein' => 'required|integer|min:0',
         ]);
 
-        // Insert into the database
+        // Save the food entry to the database
         $foodEntry = new FoodEntry();
-        $foodEntry->user_id = auth()->id(); // Get the authenticated user's ID
-        $foodEntry->food_name = $request->food_name;
-        $foodEntry->calories = $request->calories;
-        $foodEntry->carbs = $request->carbs;
-        $foodEntry->fat = $request->fat;
-        $foodEntry->protein = $request->protein;
-        $foodEntry->quantity = $request->quantity;
-        $foodEntry->date = $request->date;
+        $foodEntry->user_id = auth()->id(); // Assuming you have user authentication
+        $foodEntry->food_name = $validated['food_name'];
+        $foodEntry->calories = $validated['calories'];
+        $foodEntry->carbs = $validated['carbs'];
+        $foodEntry->fat = $validated['fat'];
+        $foodEntry->protein = $validated['protein'];
         $foodEntry->save();
 
-        return response()->json(['success' => 'Food entry added successfully.']);
-    }
+        // Calculate updated totals
+        $totalCalories = FoodEntry::where('user_id', auth()->id())->sum('calories');
+        $totalCarbs = FoodEntry::where('user_id', auth()->id())->sum('carbs');
+        $totalFat = FoodEntry::where('user_id', auth()->id())->sum('fat');
+        $totalProtein = FoodEntry::where('user_id', auth()->id())->sum('protein');
+
+        return response()->json([
+            'success' => true,
+            'calories_consumed' => $totalCalories,
+            'carbs_consumed' => $totalCarbs,
+            'fat_consumed' => $totalFat,
+            'protein_consumed' => $totalProtein,
+        ]);
+}
 }
