@@ -26,19 +26,15 @@ class ProfileController extends Controller
 
     public function showForm()
     {
-        // Get the logged-in user's ID
         $userId = Auth::id();
     
-        // Check if the user already has a profile
         $profile = Profile::where('user_id', $userId)->first();
     
-        // If the user already has a profile, redirect them to the profile page
         if ($profile) {
-            return redirect()->route('profile'); // Redirect to the profile page
+            return redirect()->route('profile'); 
         }
     
-        // If the user does not have a profile, show the personal form to complete their profile
-        return view('user.personal'); // Redirect to the personal page to complete the profile
+        return view('user.personal');
 
     }
     
@@ -139,11 +135,11 @@ class ProfileController extends Controller
     private function getActivityMultiplier($activityLevel){
     switch ($activityLevel) {
         case 'light':
-            return 1.375; // Lightly active (light exercise/sports 1-3 days/week)
+            return 1.375; 
         case 'moderate':
-            return 1.55; // Moderately active (moderate exercise/sports 3-5 days/week)
+            return 1.55; 
         case 'very_active':
-            return 1.725; // Very active (hard exercise/sports 6-7 days a week)
+            return 1.725; 
         default:
             throw new \Exception("Invalid activity level provided.");
         }
