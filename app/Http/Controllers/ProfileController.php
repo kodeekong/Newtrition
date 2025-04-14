@@ -123,7 +123,10 @@ class ProfileController extends Controller
         return response()->json(['message' => 'Nutrition tracking updated', 'data' => $nutrition]);
     }
 
-    private function calculateBMR($gender, $weight, $height, $age){
+    private function calculateBMR($gender, $weight, $height, $age)
+    {
+        $gender = strtolower(trim($gender));
+
     if ($gender === 'male') {
         return 66 + (6.23 * $weight) + (12.7 * $height) - (6.8 * $age);
     } elseif ($gender === 'female') {
