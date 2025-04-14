@@ -24,7 +24,6 @@ class CreateEntriesTable extends Migration
             $table->float('fat');
             $table->float('protein');
             $table->float('quantity');
-            $table->date('date');
             $table->timestamps();
         });
     }
