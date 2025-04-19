@@ -10,31 +10,31 @@
         background-color: #eef3f8;
         margin: 0;
         padding: 0;
-        height: 100vh; /* Full viewport height */
-        overflow: hidden; /* Prevent scrolling */
+        height: 100vh;
+        overflow: hidden;
     }
 
     .welcome-section {
-        margin: 0; /* Remove extra margin */
-        padding: 10px 0; /* Reduce padding between header and content */
+        margin: 0;
+        padding: 10px 0;
         background-color: transparent;
         text-align: center;
     }
 
     .welcome-section h1 {
-        font-size: 2rem; /* Keep font size */
+        font-size: 2rem;
         color: #2c3e50;
-        margin-bottom: 5px; /* Reduce spacing below the header */
+        margin-bottom: 5px;
     }
 
     .welcome-section p {
-        font-size: 1.1rem; /* Keep font size */
+        font-size: 1.1rem;
         color: #555;
-        margin-bottom: 10px; /* Reduce spacing below the paragraph */
+        margin-bottom: 10px;
     }
 
     .chart-container {
-        width: 300px; /* Adjust chart size to fit the page */
+        width: 300px;
         height: 300px;
         margin: auto;
         position: relative;
@@ -56,7 +56,7 @@
     }
 
     #addFoodBtn {
-        margin-top: 10px; /* Reduce spacing above the button */
+        margin-top: 10px;
         padding: 10px 20px;
         background-color: #4195be;
         color: white;
@@ -71,7 +71,7 @@
     }
 
     #addFoodModal {
-        display: none; /* Hidden by default */
+        display: none;
         position: fixed;
         top: 0;
         left: 0;
@@ -80,7 +80,7 @@
         background-color: rgba(0, 0, 0, 0.5);
         align-items: center;
         justify-content: center;
-        z-index: 1000; /* Ensure it appears above other elements */
+        z-index: 1000;
     }
 
     #addFoodModal > div {
@@ -93,8 +93,8 @@
     .progress-bars {
         display: flex;
         justify-content: center;
-        gap: 20px; /* Reduce spacing between progress bars */
-        margin-top: 10px; /* Reduce spacing above progress bars */
+        gap: 20px;
+        margin-top: 10px;
     }
 
     .progress-bars div {
@@ -104,7 +104,7 @@
     }
 
     progress {
-        width: 100px; /* Adjust progress bar width */
+        width: 100px;
         height: 10px;
     }
 </style>
@@ -142,16 +142,16 @@
 
     <div class="progress-bars">
         <div>
-            <p>Carbs: <span id="carbs">{{ $nutrition->carbs_consumed ?? 0 }}</span> / {{ $nutrition->carbs_goal ?? 346 }} g</p>
-            <progress value="{{ $nutrition->carbs_consumed ?? 0 }}" max="{{ $nutrition->carbs_goal ?? 346 }}"></progress>
+            <p>Carbs: <span id="carbsValue">{{ $nutrition->carbs_consumed ?? 0 }}</span> / {{ $nutrition->carbs_goal ?? 346 }} g</p>
+            <progress id="carbsProgress" value="{{ $nutrition->carbs_consumed ?? 0 }}" max="{{ $nutrition->carbs_goal ?? 346 }}"></progress>
         </div>
         <div>
-            <p>Fat: <span id="fat">{{ $nutrition->fat_consumed ?? 0 }}</span> / {{ $nutrition->fat_goal ?? 64 }} g</p>
-            <progress value="{{ $nutrition->fat_consumed ?? 0 }}" max="{{ $nutrition->fat_goal ?? 64 }}"></progress>
+            <p>Fat: <span id="fatValue">{{ $nutrition->fat_consumed ?? 0 }}</span> / {{ $nutrition->fat_goal ?? 64 }} g</p>
+            <progress id="fatProgress" value="{{ $nutrition->fat_consumed ?? 0 }}" max="{{ $nutrition->fat_goal ?? 64 }}"></progress>
         </div>
         <div>
-            <p>Protein: <span id="protein">{{ $nutrition->protein_consumed ?? 0 }}</span> / {{ $nutrition->protein_goal ?? 86 }} g</p>
-            <progress value="{{ $nutrition->protein_consumed ?? 0 }}" max="{{ $nutrition->protein_goal ?? 86 }}"></progress>
+            <p>Protein: <span id="proteinValue">{{ $nutrition->protein_consumed ?? 0 }}</span> / {{ $nutrition->protein_goal ?? 86 }} g</p>
+            <progress id="proteinProgress" value="{{ $nutrition->protein_consumed ?? 0 }}" max="{{ $nutrition->protein_goal ?? 86 }}"></progress>
         </div>
     </div>
 </div>
@@ -159,113 +159,108 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-    var ctx = document.getElementById('nutritionChart').getContext('2d');
-    
-    var caloriesConsumed = {{ $nutrition->calories_consumed ?? 0 }};
-    var caloriesGoal = {{ $nutrition->calories_goal ?? 2310 }};
-    var caloriesLeft = caloriesGoal - caloriesConsumed;
+        var ctx = document.getElementById('nutritionChart').getContext('2d');
 
-    document.getElementById('caloriesText').innerText = caloriesLeft + " kcal left";
+        var caloriesConsumed = {{ $nutrition->calories_consumed ?? 0 }};
+        var caloriesGoal = {{ $nutrition->calories_goal ?? 2310 }};
+        var caloriesLeft = caloriesGoal - caloriesConsumed;
 
-    var calorieChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Consumed', 'Remaining'],
-            datasets: [{
-                data: [caloriesConsumed, caloriesLeft],
-                backgroundColor: ['#4195be', 'rgba(65, 149, 190, 0.3)'],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            cutout: '70%',
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }
-            }
-        }
-    });
+        document.getElementById('caloriesText').innerText = caloriesLeft + " kcal left";
 
-    // Modal functionality
-    var addFoodBtn = document.getElementById('addFoodBtn');
-    var addFoodModal = document.getElementById('addFoodModal');
-    var closeModalBtn = document.getElementById('closeModal');
-    var addFoodForm = document.getElementById('addFoodForm');
-
-    addFoodBtn.addEventListener('click', function () {
-        addFoodModal.style.display = 'flex';
-    });
-
-    closeModalBtn.addEventListener('click', function () {
-        addFoodModal.style.display = 'none';
-    });
-
-    addFoodForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-
-        var foodName = document.getElementById('foodName').value;
-        var calories = parseInt(document.getElementById('calories').value);
-        var carbs = parseInt(document.getElementById('carbs').value);
-        var fat = parseInt(document.getElementById('fat').value);
-        var protein = parseInt(document.getElementById('protein').value);
-
-        // Send data to the backend
-        fetch('{{ route('add.food') }}', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
+        var calorieChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Consumed', 'Remaining'],
+                datasets: [{
+                    data: [caloriesConsumed, caloriesLeft],
+                    backgroundColor: ['#4195be', 'rgba(65, 149, 190, 0.3)'],
+                    borderWidth: 0
+                }]
             },
-            body: JSON.stringify({
-                food_name: foodName,
-                calories: calories,
-                carbs: carbs,
-                fat: fat,
-                protein: protein,
-            }),
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
+            options: {
+                cutout: '70%',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                }
             }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                // Update chart data
-                caloriesConsumed = data.calories_consumed;
-                caloriesLeft = caloriesGoal - caloriesConsumed;
+        });
 
-                calorieChart.data.datasets[0].data = [caloriesConsumed, caloriesLeft];
-                calorieChart.update();
+        var addFoodBtn = document.getElementById('addFoodBtn');
+        var addFoodModal = document.getElementById('addFoodModal');
+        var closeModalBtn = document.getElementById('closeModal');
+        var addFoodForm = document.getElementById('addFoodForm');
 
-                document.getElementById('caloriesText').innerText = caloriesLeft + " kcal left";
+        addFoodBtn.addEventListener('click', function () {
+            addFoodModal.style.display = 'flex';
+        });
 
-                // Update progress bars
-                document.getElementById('carbs').innerText = data.carbs_consumed;
-                document.getElementById('fat').innerText = data.fat_consumed;
-                document.getElementById('protein').innerText = data.protein_consumed;
+        closeModalBtn.addEventListener('click', function () {
+            addFoodModal.style.display = 'none';
+        });
 
-                document.querySelector('progress[value="{{ $nutrition->carbs_consumed ?? 0 }}"]').value = data.carbs_consumed;
-                document.querySelector('progress[value="{{ $nutrition->fat_consumed ?? 0 }}"]').value = data.fat_consumed;
-                document.querySelector('progress[value="{{ $nutrition->protein_consumed ?? 0 }}"]').value = data.protein_consumed;
+        addFoodForm.addEventListener('submit', function (e) {
+            e.preventDefault();
 
-                // Close the modal
-                addFoodModal.style.display = 'none';
+            var foodName = document.getElementById('foodName').value;
+            var calories = parseInt(document.getElementById('calories').value);
+            var carbs = parseInt(document.getElementById('carbs').value);
+            var fat = parseInt(document.getElementById('fat').value);
+            var protein = parseInt(document.getElementById('protein').value);
 
-                // Reset the form
-                addFoodForm.reset();
-            } else {
-                alert('Failed to add food entry.');
-            }
-        })
-        .catch(error => {
-            alert('Error: ' + error.message);
+            fetch('{{ route('add.food') }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    food_name: foodName,
+                    calories: calories,
+                    carbs: carbs,
+                    fat: fat,
+                    protein: protein,
+                }),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => { throw new Error(text); });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Update chart
+                    caloriesConsumed = data.calories_consumed;
+                    caloriesLeft = caloriesGoal - caloriesConsumed;
+
+                    calorieChart.data.datasets[0].data = [caloriesConsumed, caloriesLeft];
+                    calorieChart.update();
+
+                    document.getElementById('caloriesText').innerText = caloriesLeft + " kcal left";
+
+                    // Update progress text and bars
+                    document.getElementById('carbsValue').innerText = data.carbs_consumed;
+                    document.getElementById('fatValue').innerText = data.fat_consumed;
+                    document.getElementById('proteinValue').innerText = data.protein_consumed;
+
+                    document.getElementById('carbsProgress').value = data.carbs_consumed;
+                    document.getElementById('fatProgress').value = data.fat_consumed;
+                    document.getElementById('proteinProgress').value = data.protein_consumed;
+
+                    addFoodModal.style.display = 'none';
+                    addFoodForm.reset();
+                } else {
+                    alert('Failed to add food entry.');
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error.message);
+            });
         });
     });
-});
 </script>
 
 @endsection

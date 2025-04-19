@@ -8,7 +8,6 @@ use App\Models\Profile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
-use App\Models\FoodEntry;
 
 class FoodController extends Controller
 {
