@@ -50,8 +50,10 @@ Route::prefix('food')->name('food.')->middleware('auth')->group(function () {
     Route::get('suggested', [FoodController::class, 'getSuggestedFoods'])->name('suggested');
 });
 
-// Food Entry
-Route::post('/add-food', [FoodController::class, 'store'])->name('add.food');
+// Add food to the user's profile
+Route::middleware(['auth'])->group(function () {
+    Route::post('/add-food', [FoodController::class, 'store'])->name('add.food');
+});
 
 
 //Profile

@@ -100,7 +100,7 @@
         <p><strong>Weight:</strong> {{ ucwords($profile->weight) }} lb</p>
         <p><strong>Height:</strong> {{ ucwords(intdiv($profile->height_inch, 12) . "' " . $profile->height_inch % 12 . '"') }}</p>
         <p><strong>Gender:</strong> {{ ucwords($profile->gender) }}</p>
-        <p><strong>Activity Level:</strong> {{ ucwords($profile->activity_level) }}</p>
+        <p><strong>Activity Level:</strong> {{ ucwords(str_replace('_', ' ', $profile->activity_level)) }}</p>
         <p><strong>Goal:</strong> {{ ucwords(str_replace('_', ' ', $profile->goal)) }}</p>
 
         <a href="{{ route('dashboard') }}" class="dashboard-button">See Your Dashboard</a>
