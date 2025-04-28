@@ -55,6 +55,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/add-food', [FoodController::class, 'store'])->name('add.food');
 });
 
+// congratulations page
+Route::get('/congratulations', [ProfileController::class, 'showCongratulations'])->name('congratulations');
+
+
 
 //Profile
 // Route::middleware(['auth'])->group(function () {

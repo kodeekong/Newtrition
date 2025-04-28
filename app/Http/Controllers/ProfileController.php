@@ -35,8 +35,16 @@ class ProfileController extends Controller
         }
     
         return view('user.personal');
-
     }
+
+    public function showCongratulations()
+    {
+        $goalType = session('goal_type'); // Store the goal type in session when checking goals
+        $progressPercentage = session('progress_percentage'); // Store progress percentage in session
+        return view('user.congratulations', compact('goalType', 'progressPercentage'));
+    }
+    
+
     
     public function submitForm(Request $request)
     {
