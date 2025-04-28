@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Food;
 use App\Models\FoodEntry;
+use App\Models\TrackingNutrition;
 use App\Models\Profile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,11 +15,9 @@ class FoodController extends Controller
     // Show food search form and list all foods
     public function search()
     {
-        // Get the authenticated user and their profile
         $user = Auth::user();
         $profile = $user->profile;
 
-        // Fetch food entries linked to this user for profile page
         $foodEntries = FoodEntry::where('user_id', $user->id)->get();
         
         return view('food.search', compact('profile', 'foodEntries'));
@@ -29,8 +28,8 @@ class FoodController extends Controller
     {
         $apiUrl = 'https://world.openfoodfacts.org/cgi/search.pl';
         $query = $request->input('name');
-        $category = $request->input('category'); // Handle category filter
-        $barcode = $request->input('barcode'); // Handle barcode filter
+        $category = $request->input('category'); 
+        $barcode = $request->input('barcode');
 
         $filters = [];
         if ($category) {
@@ -78,7 +77,6 @@ class FoodController extends Controller
     {
         $food = Food::findOrFail($foodId);
         
-        // Add the food to the user's food entry
         $foodEntry = new FoodEntry();
         $foodEntry->user_id = Auth::id();
         $foodEntry->food_id = $food->id;
@@ -133,38 +131,62 @@ class FoodController extends Controller
         return response()->json($suggestedFoods);
     }
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'food_name' => 'required|string|max:255',
-            'calories' => 'required|integer|min:0',
-            'carbs' => 'required|integer|min:0',
-            'fat' => 'required|integer|min:0',
-            'protein' => 'required|integer|min:0',
-        ]);
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'food_name' => 'required|string|max:255',
+        'calories' => 'required|integer|min:0',
+        'carbs' => 'required|integer|min:0',
+        'fat' => 'required|integer|min:0',
+        'protein' => 'required|integer|min:0',
+    ]);
 
-        // Save the food entry to the database
-        $foodEntry = new FoodEntry();
-        $foodEntry->user_id = auth()->id(); // Assuming you have user authentication
-        $foodEntry->food_name = $validated['food_name'];
-        $foodEntry->calories = $validated['calories'];
-        $foodEntry->carbs = $validated['carbs'];
-        $foodEntry->fat = $validated['fat'];
-        $foodEntry->protein = $validated['protein'];
-        $foodEntry->save();
+    $userId = auth()->id();
 
-        // Calculate updated totals
-        $totalCalories = FoodEntry::where('user_id', auth()->id())->sum('calories');
-        $totalCarbs = FoodEntry::where('user_id', auth()->id())->sum('carbs');
-        $totalFat = FoodEntry::where('user_id', auth()->id())->sum('fat');
-        $totalProtein = FoodEntry::where('user_id', auth()->id())->sum('protein');
+    // Save the food entry
+    $foodEntry = new FoodEntry();
+    $foodEntry->user_id = $userId;
+    $foodEntry->food_name = $validated['food_name'];
+    $foodEntry->calories = $validated['calories'];
+    $foodEntry->carbs = $validated['carbs'];
+    $foodEntry->fat = $validated['fat'];
+    $foodEntry->protein = $validated['protein'];
+    $foodEntry->save();
 
-        return response()->json([
-            'success' => true,
-            'calories_consumed' => $totalCalories,
-            'carbs_consumed' => $totalCarbs,
-            'fat_consumed' => $totalFat,
-            'protein_consumed' => $totalProtein,
-        ]);
+    // Get today's date
+    $currentDate = now()->toDateString();
+
+    // Update tracking_nutrition for today
+    $tracking = TrackingNutrition::firstOrCreate(
+        [
+            'user_id' => $userId,
+            'date' => $currentDate,
+        ],
+        [
+            'calories_goal' => 0,
+            'protein_goal' => 0,
+            'carbs_goal' => 0,
+            'fat_goal' => 0,
+            'calories_consumed' => 0,
+            'protein_consumed' => 0,
+            'carbs_consumed' => 0,
+            'fat_consumed' => 0,
+        ]
+    );
+
+    // Add the new food's nutrition to today's totals
+    $tracking->increment('calories_consumed', $validated['calories']);
+    $tracking->increment('protein_consumed', $validated['protein']);
+    $tracking->increment('carbs_consumed', $validated['carbs']);
+    $tracking->increment('fat_consumed', $validated['fat']);
+
+    return response()->json([
+        'success' => true,
+        'calories_consumed' => $tracking->calories_consumed,
+        'carbs_consumed' => $tracking->carbs_consumed,
+        'fat_consumed' => $tracking->fat_consumed,
+        'protein_consumed' => $tracking->protein_consumed,
+    ]);
 }
+
 }

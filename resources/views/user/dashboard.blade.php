@@ -232,7 +232,6 @@
             })
             .then(data => {
                 if (data.success) {
-                    // Update chart
                     caloriesConsumed = data.calories_consumed;
                     caloriesLeft = caloriesGoal - caloriesConsumed;
 
@@ -241,7 +240,6 @@
 
                     document.getElementById('caloriesText').innerText = caloriesLeft + " kcal left";
 
-                    // Update progress text and bars
                     document.getElementById('carbsValue').innerText = data.carbs_consumed;
                     document.getElementById('fatValue').innerText = data.fat_consumed;
                     document.getElementById('proteinValue').innerText = data.protein_consumed;
