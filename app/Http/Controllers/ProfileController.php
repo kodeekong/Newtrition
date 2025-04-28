@@ -35,8 +35,16 @@ class ProfileController extends Controller
         }
     
         return view('user.personal');
-
     }
+
+    public function showCongratulations()
+    {
+        $goalType = session('goal_type'); // Store the goal type in session when checking goals
+        $progressPercentage = session('progress_percentage'); // Store progress percentage in session
+        return view('user.congratulations', compact('goalType', 'progressPercentage'));
+    }
+    
+
     
     public function submitForm(Request $request)
     {
@@ -79,11 +87,10 @@ class ProfileController extends Controller
 
     public function calculateDailyCalorieNeeds($userId)
     {
-        $userId = Auth::id();
         $profile = Profile::where('user_id', $userId)->first();
     
         if (!$profile) {
-            return response()->json(['error' => 'Profile not found'], 404);
+            return;
         }
     
         $heightInInches = ($profile->height_ft * 12) + $profile->height_inch;
@@ -92,7 +99,7 @@ class ProfileController extends Controller
         $gender = $profile->gender;
     
         if ($weightInLbs <= 0 || $heightInInches <= 0 || $age <= 0) {
-            return response()->json(['error' => 'Invalid profile data'], 400);
+            return;
         }
     
         $bmr = $this->calculateBMR($gender, $weightInLbs, $heightInInches, $age);
@@ -102,12 +109,15 @@ class ProfileController extends Controller
         $calories = round($tdee);
         $proteinGoal = round(($calories * 0.3) / 4); 
         $carbsGoal = round(($calories * 0.5) / 4);   
-        $fatGoal = round(($calories * 0.2) / 9);     
+        $fatGoal = round(($calories * 0.2) / 9);    
     
         $currentDate = now()->toDateString();
     
-        $nutrition = TrackingNutrition::updateOrCreate(
-            ['user_id' => $userId, 'date' => $currentDate], 
+        TrackingNutrition::updateOrCreate(
+            [
+                'user_id' => $userId,
+                'date' => $currentDate,
+            ],
             [
                 'calories_goal' => $calories,
                 'protein_goal' => $proteinGoal,
@@ -119,9 +129,8 @@ class ProfileController extends Controller
                 'fat_consumed' => 0,
             ]
         );
-    
-        return response()->json(['message' => 'Nutrition tracking updated', 'data' => $nutrition]);
     }
+    
 
     private function calculateBMR($gender, $weight, $height, $age)
     {

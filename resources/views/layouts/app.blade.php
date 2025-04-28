@@ -7,7 +7,7 @@
     <title>@yield('title', 'Welcome to Newtrition')</title>
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <style>
-    /* General body and layout styling */
+
     body, html {
         font-family: 'avenir';
         margin: 0;
@@ -22,9 +22,8 @@
         padding-bottom: 50px;
     }
 
-    /* Header styling */
     header {
-        background-color: #4195be; /* Turquoise */
+        background-color: #4195be;
         color: white;
         padding: 10px 20px;
         display: flex;
@@ -95,7 +94,7 @@
     }
 
     .welcome-section h1 {
-        color: #4195be; /* Turquoise */
+        color: #4195be; 
         font-size: 48px;
         margin-bottom: 20px;
     }

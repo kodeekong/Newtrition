@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Food;
 use App\Models\FoodEntry;
+use App\Models\TrackingNutrition;
 use App\Models\Profile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,11 +15,9 @@ class FoodController extends Controller
     // Show food search form and list all foods
     public function search()
     {
-        // Get the authenticated user and their profile
         $user = Auth::user();
         $profile = $user->profile;
 
-        // Fetch food entries linked to this user for profile page
         $foodEntries = FoodEntry::where('user_id', $user->id)->get();
         
         return view('food.search', compact('profile', 'foodEntries'));
@@ -29,8 +28,8 @@ class FoodController extends Controller
     {
         $apiUrl = 'https://world.openfoodfacts.org/cgi/search.pl';
         $query = $request->input('name');
-        $category = $request->input('category'); // Handle category filter
-        $barcode = $request->input('barcode'); // Handle barcode filter
+        $category = $request->input('category'); 
+        $barcode = $request->input('barcode');
 
         $filters = [];
         if ($category) {
@@ -78,7 +77,6 @@ class FoodController extends Controller
     {
         $food = Food::findOrFail($foodId);
         
-        // Add the food to the user's food entry
         $foodEntry = new FoodEntry();
         $foodEntry->user_id = Auth::id();
         $foodEntry->food_id = $food->id;
@@ -142,29 +140,57 @@ class FoodController extends Controller
             'fat' => 'required|integer|min:0',
             'protein' => 'required|integer|min:0',
         ]);
-
-        // Save the food entry to the database
+    
+        $user = auth()->user();
+        $currentDate = now()->toDateString();
+    
+        // Save the food entry
         $foodEntry = new FoodEntry();
-        $foodEntry->user_id = auth()->id(); // Assuming you have user authentication
+        $foodEntry->user_id = $user->id;
         $foodEntry->food_name = $validated['food_name'];
         $foodEntry->calories = $validated['calories'];
         $foodEntry->carbs = $validated['carbs'];
         $foodEntry->fat = $validated['fat'];
         $foodEntry->protein = $validated['protein'];
         $foodEntry->save();
-
-        // Calculate updated totals
-        $totalCalories = FoodEntry::where('user_id', auth()->id())->sum('calories');
-        $totalCarbs = FoodEntry::where('user_id', auth()->id())->sum('carbs');
-        $totalFat = FoodEntry::where('user_id', auth()->id())->sum('fat');
-        $totalProtein = FoodEntry::where('user_id', auth()->id())->sum('protein');
-
+    
+        // Update tracking nutrition
+        $tracking = TrackingNutrition::where('user_id', $user->id)
+                                      ->where('date', $currentDate)
+                                      ->first();
+    
+        if ($tracking) {
+            $tracking->calories_consumed += $validated['calories'];
+            $tracking->carbs_consumed += $validated['carbs'];
+            $tracking->fat_consumed += $validated['fat'];
+            $tracking->protein_consumed += $validated['protein'];
+            $tracking->save();
+        }
+    
+        // Check if user reached their goals
+        $congratulations = false;
+        $message = '';
+    
+        if ($tracking) {
+            if ($tracking->calories_consumed >= $tracking->calories_goal) {
+                $congratulations = true;
+                $message = 'Congratulations! You reached your calorie goal!';
+            }
+            if ($tracking->protein_consumed >= $tracking->protein_goal) {
+                $congratulations = true;
+                $message = 'Congratulations! You reached your protein goal!';
+            }
+        }
+    
         return response()->json([
             'success' => true,
-            'calories_consumed' => $totalCalories,
-            'carbs_consumed' => $totalCarbs,
-            'fat_consumed' => $totalFat,
-            'protein_consumed' => $totalProtein,
+            'calories_consumed' => $tracking->calories_consumed ?? 0,
+            'carbs_consumed' => $tracking->carbs_consumed ?? 0,
+            'fat_consumed' => $tracking->fat_consumed ?? 0,
+            'protein_consumed' => $tracking->protein_consumed ?? 0,
+            'congratulations' => $congratulations,
+            'message' => $message,
         ]);
-}
+    }    
+
 }
