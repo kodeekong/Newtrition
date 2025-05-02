@@ -5,108 +5,165 @@
 @section('content')
 
 <style>
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #eef3f8;
-        margin: 0;
-        padding: 0;
-        height: 100vh;
-        overflow: hidden;
-    }
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #eef3f8;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    overflow: auto;
+}
 
-    .welcome-section {
-        margin: 0;
-        padding: 10px 0;
-        background-color: transparent;
-        text-align: center;
-    }
+.welcome-section {
+    margin: 0;
+    padding: 0;
+    background-color: transparent;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+}
 
-    .welcome-section h1 {
-        font-size: 2rem;
-        color: #2c3e50;
-        margin-bottom: 5px;
-    }
+.welcome-section h1 {
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
 
-    .welcome-section p {
-        font-size: 1.1rem;
-        color: #555;
-        margin-bottom: 10px;
-    }
+.welcome-section p {
+    font-size: 1.2rem;
+    color: #555;
+    margin-bottom: 20px;
+}
 
-    .chart-container {
-        width: 300px;
-        height: 300px;
-        margin: auto;
-        position: relative;
-    }
+.chart-container {
+    width: 50%; /* Adjusted width */
+    max-width: 600px;
+    height: 300px;
+    margin: 20px auto; /* Centering the chart */
+    position: relative;
+    background-color: transparent; /* Ensure no background */
+    border: none; /* Remove any border */
+    padding: 0; /* Ensure no extra padding */
+}
 
-    .chart-container canvas {
-        display: block;
-        width: 100%;
-        height: 100%;
-    }
+.chart-container canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
 
-    #caloriesText {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 1.1rem;
-        color: black;
-    }
+#caloriesText {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.2rem;
+    color: black;
+}
 
-    #addFoodBtn {
-        margin-top: 10px;
-        padding: 10px 20px;
-        background-color: #4195be;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
+#addFoodBtn {
+    margin-top: 20px;
+    padding: 15px 30px;
+    background-color: #4195be;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
 
-    #addFoodBtn:hover {
-        background-color: rgb(45, 86, 107);
-    }
+#addFoodBtn:hover {
+    background-color: rgb(45, 86, 107);
+}
 
-    #addFoodModal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-    }
+#addFoodModal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
 
-    #addFoodModal > div {
-        background-color: white;
-        padding: 20px;
-        border-radius: 5px;
-        width: 300px;
-    }
+#addFoodModal > div {
+    background-color: white;
+    padding: 25px;
+    border-radius: 5px;
+    width: 400px;
+    max-width: 90%;
+}
 
-    .progress-bars {
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-        margin-top: 10px;
-    }
+#addFoodForm label {
+    font-size: 1.1rem;
+}
 
-    .progress-bars div {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
+#addFoodForm input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
 
-    progress {
-        width: 100px;
-        height: 10px;
-    }
+#addFoodForm button {
+    padding: 12px 20px;
+    background-color: #4195be;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+}
+
+#addFoodForm button[type="button"] {
+    background-color: #e74c3c;
+}
+
+#addFoodModal h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+.progress-bars {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 40px;
+}
+
+.progress-bars div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 15%;
+}
+
+progress {
+    width: 80%;
+    height: 8px;
+    border-radius: 10px;
+    background-color: #e0e0e0;
+    margin-bottom: 15px;
+}
+
+progress::-webkit-progress-bar {
+    background-color: #e0e0e0;
+}
+
+progress::-webkit-progress-value {
+    background-color: #4195be;
+}
+
+progress::-moz-progress-bar {
+    background-color: #4195be;
+}
+
 </style>
 
 <div class="welcome-section">
