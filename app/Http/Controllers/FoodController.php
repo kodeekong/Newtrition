@@ -8,6 +8,7 @@ use App\Models\TrackingNutrition;
 use App\Models\Profile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 
 class FoodController extends Controller
@@ -132,65 +133,79 @@ class FoodController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'food_name' => 'required|string|max:255',
-            'calories' => 'required|integer|min:0',
-            'carbs' => 'required|integer|min:0',
-            'fat' => 'required|integer|min:0',
-            'protein' => 'required|integer|min:0',
+{
+    $validated = $request->validate([
+        'food_name' => 'required|string|max:255',
+        'calories' => 'required|integer|min:0',
+        'carbs' => 'required|integer|min:0',
+        'fat' => 'required|integer|min:0',
+        'protein' => 'required|integer|min:0',
+    ]);
+
+    $userId = auth()->id();
+
+    // Save the food entry
+    $foodEntry = new FoodEntry();
+    $foodEntry->user_id = $userId;
+    $foodEntry->food_name = $validated['food_name'];
+    $foodEntry->calories = $validated['calories'];
+    $foodEntry->carbs = $validated['carbs'];
+    $foodEntry->fat = $validated['fat'];
+    $foodEntry->protein = $validated['protein'];
+    $foodEntry->save();
+
+    // Get today's date
+    $currentDate = now()->toDateString();
+
+    // Update tracking_nutrition for today
+    $tracking = TrackingNutrition::firstOrCreate(
+        [
+            'user_id' => $userId,
+            'date' => $currentDate,
+        ],
+        [
+            'calories_goal' => 0,
+            'protein_goal' => 0,
+            'carbs_goal' => 0,
+            'fat_goal' => 0,
+            'calories_consumed' => 0,
+            'protein_consumed' => 0,
+            'carbs_consumed' => 0,
+            'fat_consumed' => 0,
+        ]
+    );
+
+    // Add the new food's nutrition to today's totals
+    $tracking->increment('calories_consumed', $validated['calories']);
+    $tracking->increment('protein_consumed', $validated['protein']);
+    $tracking->increment('carbs_consumed', $validated['carbs']);
+    $tracking->increment('fat_consumed', $validated['fat']);
+
+    return response()->json([
+        'success' => true,
+        'calories_consumed' => $tracking->calories_consumed,
+        'carbs_consumed' => $tracking->carbs_consumed,
+        'fat_consumed' => $tracking->fat_consumed,
+        'protein_consumed' => $tracking->protein_consumed,
+    ]);
+}
+
+public function index()
+{
+    $nutrition = auth()->user()->nutrition;
+
+    if (!$nutrition->last_reset_at || $nutrition->last_reset_at->lt(Carbon::today())) {
+        $nutrition->update([
+            'calories_consumed' => 0,
+            'carbs_consumed' => 0,
+            'fat_consumed' => 0,
+            'protein_consumed' => 0,
+            'last_reset_at' => Carbon::today()
         ]);
-    
-        $user = auth()->user();
-        $currentDate = now()->toDateString();
-    
-        // Save the food entry
-        $foodEntry = new FoodEntry();
-        $foodEntry->user_id = $user->id;
-        $foodEntry->food_name = $validated['food_name'];
-        $foodEntry->calories = $validated['calories'];
-        $foodEntry->carbs = $validated['carbs'];
-        $foodEntry->fat = $validated['fat'];
-        $foodEntry->protein = $validated['protein'];
-        $foodEntry->save();
-    
-        // Update tracking nutrition
-        $tracking = TrackingNutrition::where('user_id', $user->id)
-                                      ->where('date', $currentDate)
-                                      ->first();
-    
-        if ($tracking) {
-            $tracking->calories_consumed += $validated['calories'];
-            $tracking->carbs_consumed += $validated['carbs'];
-            $tracking->fat_consumed += $validated['fat'];
-            $tracking->protein_consumed += $validated['protein'];
-            $tracking->save();
-        }
-    
-        // Check if user reached their goals
-        $congratulations = false;
-        $message = '';
-    
-        if ($tracking) {
-            if ($tracking->calories_consumed >= $tracking->calories_goal) {
-                $congratulations = true;
-                $message = 'Congratulations! You reached your calorie goal!';
-            }
-            if ($tracking->protein_consumed >= $tracking->protein_goal) {
-                $congratulations = true;
-                $message = 'Congratulations! You reached your protein goal!';
-            }
-        }
-    
-        return response()->json([
-            'success' => true,
-            'calories_consumed' => $tracking->calories_consumed ?? 0,
-            'carbs_consumed' => $tracking->carbs_consumed ?? 0,
-            'fat_consumed' => $tracking->fat_consumed ?? 0,
-            'protein_consumed' => $tracking->protein_consumed ?? 0,
-            'congratulations' => $congratulations,
-            'message' => $message,
-        ]);
-    }    
+    }
+
+    return view('dashboard', compact('nutrition'));
+}
+
 
 }
