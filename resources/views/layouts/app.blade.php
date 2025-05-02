@@ -7,105 +7,100 @@
     <title>@yield('title', 'Welcome to Newtrition')</title>
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <style>
+        body, html {
+            font-family: 'avenir';
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background-color: #F2F7F6;
+            color: #333;
+        }
 
-    body, html {
-        font-family: 'avenir';
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        background-color: #F2F7F6;
-        color: #333;
-    }
+        .container {
+            padding-bottom: 100px;
+        }
 
-    .container {
-        /* min-height: 80vh; */
-        padding-bottom: 100px;
-    }
+        header {
+            background-color: #4195be;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
 
+        header img {
+            height: 75px;
+            max-width: 180px;
+            object-fit: contain;
+        }
 
-    header {
-        background-color: #4195be;
-        color: white;
-        padding: 10px 20px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
+        nav ul {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
 
-    header img {
-        height: 75px;
-        max-width: 180px;
-        object-fit: contain;
-    }
+        nav ul li {
+            margin: 0 15px;
+        }
 
-    nav ul {
-        display: flex;
-        list-style: none;
-        margin: 0;
-        padding: 0;
-    }
+        nav ul li a, nav ul li button {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: color 0.3s ease, background-color 0.3s ease;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
 
-    nav ul li {
-        margin: 0 15px;
-    }
+        nav ul li a:hover, nav ul li button:hover {
+            color: #B65449;
+        }
 
-    nav ul li a, nav ul li button {
-        color: white;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 16px;
-        transition: color 0.3s ease, background-color 0.3s ease;
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 0;
-    }
+        main {
+            padding: 40px 20px;
+        }
 
-    nav ul li a:hover, nav ul li button:hover {
-        color: #B65449;
-    }
+        footer {
+            background-color: #4195be;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
 
-    main {
-        padding: 40px 20px;
-    }
+        footer p {
+            margin: 0;
+        }
 
-    footer {
-        position: fixed;
-        padding: 10px 0;
-        background-color: #4195be; 
-        color: white;
-        text-align: center;
-        padding: 20px;
-        position: fixed;
-        width: 100%;
-        bottom: 0;
-    }
+        .welcome-section {
+            text-align: center;
+            padding: 60px 20px;
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+            margin-top: 80px;
+        }
 
-    footer p {
-        margin: 0;
-    }
+        .welcome-section h1 {
+            color: #4195be;
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
 
-    .welcome-section {
-        text-align: center;
-        padding: 60px 20px;
-        background-color: #FFFFFF;
-        border-radius: 8px;
-        box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
-        margin-top: 80px;
-    }
-
-    .welcome-section h1 {
-        color: #4195be; 
-        font-size: 48px;
-        margin-bottom: 20px;
-    }
-
-    .welcome-section p {
-        font-size: 18px;
-        color: #555;
-        margin-bottom: 30px;
-    }
-</style>
+        .welcome-section p {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 30px;
+        }
+    </style>
 </head>
 <body>
 
@@ -118,7 +113,7 @@
                     <li><a href="{{ route('dashboard') }}">Dashboard</a></li>
                     <li><a href="{{ route('profile') }}">Profile</a></li>
                     <li>
-                        <form action="{{ route('login') }}" method="POST" style="display: inline;">
+                        <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                             @csrf
                             <button type="submit" class="logout-button">Logout</button>
                         </form>
@@ -128,37 +123,22 @@
         @else
             <nav>
                 <ul>
-                    <li><a href="{{ route('register') }}">Sign Up</a></li>
-                    <li><a href="{{ route('login') }}">Login</a></li>
+                    <li><a href="{{ route('register') }}">Register</a></li>
                 </ul>
             </nav>
         @endauth
     </header>
 
     <main>
-        @yield('content') 
+        @yield('content')
     </main>
 
     <footer>
-        <p>&copy; 2025 Newtrition. All rights reserved.</p>
+        <p>&copy; 2025 Newtrition. All rights reserved. |
+            <a href="#" style="color: white;">Privacy Policy</a> |
+            <a href="#" style="color: white;">Terms of Service</a>
+        </p>
     </footer>
-
-    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-        @csrf
-    </form>
-
-    <footer style="background-color: #4195be; color: white; text-align: center; padding: 20px;">
-    <p>&copy; 2025 Newtrition. All rights reserved. | <a href="#" style="color: white;">Privacy Policy</a> | <a href="#" style="color: white;">Terms of Service</a></p>
-</footer>
-
-    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-        @csrf
-    </form>
-
-    <footer style="background-color: #4195be; color: white; text-align: center; padding: 20px;">
-    <p>&copy; 2025 Newtrition. All rights reserved. | <a href="#" style="color: white;">Privacy Policy</a> | <a href="#" style="color: white;">Terms of Service</a></p>
-</footer>
-
 
 </body>
 </html>
