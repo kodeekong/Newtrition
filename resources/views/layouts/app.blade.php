@@ -18,9 +18,10 @@
     }
 
     .container {
-        min-height: 80vh;
-        padding-bottom: 50px;
+        /* min-height: 80vh; */
+        padding-bottom: 100px;
     }
+
 
     header {
         background-color: #4195be;

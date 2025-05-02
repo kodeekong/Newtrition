@@ -91,7 +91,7 @@
 </style>
 
 <div class="dashboard">
-    <h1>Welcome to Your Profile, {{ Auth::user()->name }}!</h1>
+    <h1>Welcome to Your Profile, {{ Auth::user()->username }}!</h1>
     <p>Here you can see your profile information, daily calorie needs, and more.</p>
 
     <div class="profile-info">
