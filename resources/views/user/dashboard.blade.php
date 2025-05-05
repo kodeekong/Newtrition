@@ -36,14 +36,14 @@ body {
 }
 
 .chart-container {
-    width: 50%; /* Adjusted width */
+    width: 50%;
     max-width: 600px;
     height: 300px;
-    margin: 20px auto; /* Centering the chart */
+    margin: 20px auto; 
     position: relative;
-    background-color: transparent; /* Ensure no background */
-    border: none; /* Remove any border */
-    padding: 0; /* Ensure no extra padding */
+    background-color: transparent; 
+    border: none; 
+    padding: 0; 
 }
 
 .chart-container canvas {
