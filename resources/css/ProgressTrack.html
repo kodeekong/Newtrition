@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progress Tracker</title>
+    <link rel="stylesheet" href="Progress.css">
+</head>
+<body>
+
+<div class="progress-container">
+    <h2>Progress Tracker Page</h2>
+
+    <!-- Progress Tracker -->
+    <div class="progress-tracker">
+        <h3>Progress Tracker</h3>
+        <table id="progress-table">
+            <tr>
+                <th>Metric</th>
+                <th>Day 1</th>
+                <th>Day 2</th>
+                <th>Day 3</th>
+                <th>Day 4</th>
+                <th>Day 5</th>
+                <th>Day 6</th>
+                <th>Day 7</th>
+            </tr>
+            <tr>
+                <td>Weight</td>
+                <td><input type="number" id="weight1" class="no-arrows"></td>
+                <td><input type="number" id="weight2" class="no-arrows"></td>
+                <td><input type="number" id="weight3" class="no-arrows"></td>
+                <td><input type="number" id="weight4" class="no-arrows"></td>
+                <td><input type="number" id="weight5" class="no-arrows"></td>
+                <td><input type="number" id="weight6" class="no-arrows"></td>
+                <td><input type="number" id="weight7" class="no-arrows"></td>
+            </tr>
+            <tr>
+                <td>Time (min)</td>
+                <td><input type="number" id="time1" class="no-arrows"></td>
+                <td><input type="number" id="time2" class="no-arrows"></td>
+                <td><input type="number" id="time3" class="no-arrows"></td>
+                <td><input type="number" id="time4" class="no-arrows"></td>
+                <td><input type="number" id="time5" class="no-arrows"></td>
+                <td><input type="number" id="time6" class="no-arrows"></td>
+                <td><input type="number" id="time7" class="no-arrows"></td>
+            </tr>
+            <tr>
+                <td>Reps</td>
+                <td><input type="number" id="reps1" class="no-arrows"></td>
+                <td><input type="number" id="reps2" class="no-arrows"></td>
+                <td><input type="number" id="reps3" class="no-arrows"></td>
+                <td><input type="number" id="reps4" class="no-arrows"></td>
+                <td><input type="number" id="reps5" class="no-arrows"></td>
+                <td><input type="number" id="reps6" class="no-arrows"></td>
+                <td><input type="number" id="reps7" class="no-arrows"></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Affirmations Section -->
+    <div class="affirmations-section">
+        <h3>My Affirmations</h3>
+        <textarea id="affirmations" rows="3" placeholder="Write positive affirmations here..."></textarea>
+    </div>
+
+    <button onclick="saveProgress()">Save Progress</button>
+    <button onclick="location.href='index.html'">Go to Home Page</button>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

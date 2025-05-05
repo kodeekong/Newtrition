@@ -1,0 +1,79 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8e1d3;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 600px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    text-align: center;
+    font-style: italic;
+    color: #333;
+}
+
+h3 {
+    margin-top: 15px;
+    color: #555;
+}
+
+input, textarea {
+    width: 100%;
+    margin-top: 5px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+table {
+    width: 100%;
+    margin-top: 10px;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #f4b6a6;
+    color: white;
+}
+
+.water-input {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.water-input label {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.water-input input {
+    width: 80px;
+    text-align: center;
+}
+
+.fitness-image {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 150px; 
+    height: auto;
+    opacity: 0.9;
+    z-index: 10;
+}
