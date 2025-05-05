@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Fitness Board</title>
+    <link rel="stylesheet" href="dailyfit.css">
+</head>
+<body>
+
+<div class="container">
+    <h2>Daily Fitness Planner</h2>
+    <label>Date: <input type="date" id="date"></label>
+
+    <h3>Goals</h3>
+    <textarea id="goals" rows="3"></textarea>
+
+    <h3>Workouts</h3>
+    <table>
+        <tr>
+            <th>Exercise</th>
+            <th>Time (min)</th>
+            <th>Reps</th>
+        </tr>
+        <tr>
+            <td><input type="text" id="exercise1"></td>
+            <td><input type="number" id="time1"></td>
+            <td><input type="number" id="reps1"></td>
+        </tr>
+        <tr>
+            <td><input type="text" id="exercise2"></td>
+            <td><input type="number" id="time2"></td>
+            <td><input type="number" id="reps2"></td>
+        </tr>
+    </table>
+
+    <h3>Meals</h3>
+    <table>
+        <tr>
+            <th>Meal</th>
+            <th>Calories</th>
+        </tr>
+        <tr><td>Breakfast</td><td><input type="number" id="breakfast"></td></tr>
+        <tr><td>Lunch</td><td><input type="number" id="lunch"></td></tr>
+        <tr><td>Dinner</td><td><input type="number" id="dinner"></td></tr>
+        <tr><td>Snacks</td><td><input type="number" id="snacks"></td></tr>
+    </table>
+
+    <h3>Water Intake (oz)</h3>
+    <label>Total: <input type="number" id="water" min="0" step="1"> oz</label>
+
+    <h3>Steps</h3>
+    <input type="number" id="steps" min="0" step="1">
+
+    <button onclick="saveData()">Save Data</button>
+    <button onclick="location.href='ProgressTracker.html'">View Progress</button>
+</div>
+
+<script src="dailyfit.js"></script>
+</body>
+</html>
