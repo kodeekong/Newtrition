@@ -27,6 +27,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'showProfile'])->name('profile');
     Route::get('/personal', [ProfileController::class, 'showForm'])->name('personal');
     Route::post('/personal', [ProfileController::class, 'submitForm'])->name('personal');
+    Route::get('/edit-profile', [ProfileController::class, 'edit'])->name('edit.profile');
+    Route::post('/profile/submit', [ProfileController::class, 'submitForm'])->name('profile.submit');
 
     // Food Routes
     Route::prefix('food')->name('food.')->group(function () {
@@ -42,6 +44,7 @@ Route::middleware('auth')->group(function () {
     // Add food (separate route if needed)
     Route::post('/add-food', [FoodController::class, 'store'])->name('add.food');
 });
+
 
 // Congratulations page (public or protected as needed)
 Route::get('/congratulations', [ProfileController::class, 'showCongratulations'])->name('congratulations');

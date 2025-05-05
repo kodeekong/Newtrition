@@ -92,7 +92,7 @@
 
 <div class="dashboard">
     <h1>Welcome to Your Profile, {{ Auth::user()->username }}!</h1>
-    <p>Here you can see your profile information, daily calorie needs, and more.</p>
+    <p>Here you can see your profile information, daily calorie needs, and more..</p>
 
     <div class="profile-info">
         <h3>Profile Information</h3>
@@ -104,6 +104,8 @@
         <p><strong>Goal:</strong> {{ ucwords(str_replace('_', ' ', $profile->goal)) }}</p>
 
         <a href="{{ route('dashboard') }}" class="dashboard-button">See Your Dashboard</a>
+        <a href="{{ route('edit.profile') }}" class="dashboard-button" style="right: 230px;">Edit Profile</a>
+
     </div>
 </div>
 @endsection

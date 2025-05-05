@@ -44,8 +44,19 @@ class ProfileController extends Controller
         return view('user.congratulations', compact('goalType', 'progressPercentage'));
     }
     
-
+    public function edit()
+    {
+        $user = Auth::user();
+        $profile = $user->profile;
     
+        if (!$profile) {
+            return redirect()->route('personal')->with('error', 'Please create your profile first.');
+        }
+    
+        return view('user.personal', ['profile' => $profile]);
+    }
+    
+
     public function submitForm(Request $request)
     {
         $validated = $request->validate([
@@ -131,7 +142,6 @@ class ProfileController extends Controller
         );
     }
     
-
     private function calculateBMR($gender, $weight, $height, $age)
     {
         $gender = strtolower(trim($gender));
