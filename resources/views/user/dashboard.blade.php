@@ -3,319 +3,439 @@
 @section('title', 'Dashboard')
 
 @section('content')
-
 <style>
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #eef3f8;
-    margin: 0;
-    padding: 0;
-    height: 100vh;
-    overflow: auto;
-}
+    :root {
+        --primary-color: #2563eb;
+        --primary-hover: #1d4ed8;
+        --secondary-color: #64748b;
+        --accent-color: #f59e0b;
+        --background-color: #f8fafc;
+        --card-background: #ffffff;
+        --text-primary: #1e293b;
+        --text-secondary: #64748b;
+        --border-color: #e2e8f0;
+    }
 
-.welcome-section {
-    margin: 0;
-    padding: 0;
-    background-color: transparent;
-    text-align: center;
-    width: 100%;
-    height: 100%;
-}
+    [data-theme="dark"] {
+        --primary-color: #3b82f6;
+        --primary-hover: #60a5fa;
+        --secondary-color: #94a3b8;
+        --accent-color: #fbbf24;
+        --background-color: #0f172a;
+        --card-background: #1e293b;
+        --text-primary: #f1f5f9;
+        --text-secondary: #cbd5e1;
+        --border-color: #334155;
+    }
 
-.welcome-section h1 {
-    font-size: 2.5rem;
-    color: #2c3e50;
-    margin-bottom: 15px;
-}
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--background-color);
+        color: var(--text-primary);
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
 
-.welcome-section p {
-    font-size: 1.2rem;
-    color: #555;
-    margin-bottom: 20px;
-}
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
 
-.chart-container {
-    width: 50%;
-    max-width: 600px;
-    height: 300px;
-    margin: 20px auto; 
-    position: relative;
-    background-color: transparent; 
-    border: none; 
-    padding: 0; 
-}
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
 
-.chart-container canvas {
-    display: block;
-    width: 100%;
-    height: 100%;
-}
+    .theme-toggle {
+        background: none;
+        border: none;
+        color: var(--text-primary);
+        cursor: pointer;
+        font-size: 1.5rem;
+    }
 
-#caloriesText {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 1.2rem;
-    color: black;
-}
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
 
-#addFoodBtn {
-    margin-top: 20px;
-    padding: 15px 30px;
-    background-color: #4195be;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
+    .stat-card {
+        background-color: var(--card-background);
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
 
-#addFoodBtn:hover {
-    background-color: rgb(45, 86, 107);
-}
+    .stat-card h3 {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+    }
 
-#addFoodModal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
+    .stat-card .value {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
 
-#addFoodModal > div {
-    background-color: white;
-    padding: 25px;
-    border-radius: 5px;
-    width: 400px;
-    max-width: 90%;
-}
+    .chart-container {
+        background-color: var(--card-background);
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
 
-#addFoodForm label {
-    font-size: 1.1rem;
-}
+    .meal-section {
+        background-color: var(--card-background);
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
 
-#addFoodForm input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    font-size: 1rem;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-}
+    .meal-tabs {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
 
-#addFoodForm button {
-    padding: 12px 20px;
-    background-color: #4195be;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 10px;
-}
+    .meal-tab {
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        background-color: var(--background-color);
+        color: var(--text-primary);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
 
-#addFoodForm button[type="button"] {
-    background-color: #e74c3c;
-}
+    .meal-tab.active {
+        background-color: var(--primary-color);
+        color: white;
+    }
 
-#addFoodModal h2 {
-    font-size: 1.5rem;
-    margin-bottom: 20px;
-}
+    .history-section {
+        background-color: var(--card-background);
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
 
-.progress-bars {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 40px;
-}
+    .date-picker {
+        margin-bottom: 1rem;
+    }
 
-.progress-bars div {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 15%;
-}
+    .date-picker input {
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        border: 1px solid var(--border-color);
+        background-color: var(--background-color);
+        color: var(--text-primary);
+    }
 
-progress {
-    width: 80%;
-    height: 8px;
-    border-radius: 10px;
-    background-color: #e0e0e0;
-    margin-bottom: 15px;
-}
+    .btn {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        border: none;
+        background-color: var(--primary-color);
+        color: white;
+    }
 
-progress::-webkit-progress-bar {
-    background-color: #e0e0e0;
-}
+    .btn:hover {
+        background-color: var(--primary-hover);
+        transform: translateY(-1px);
+    }
 
-progress::-webkit-progress-value {
-    background-color: #4195be;
-}
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
 
-progress::-moz-progress-bar {
-    background-color: #4195be;
-}
+    .modal-content {
+        background-color: var(--card-background);
+        padding: 2rem;
+        border-radius: 0.75rem;
+        width: 90%;
+        max-width: 500px;
+    }
 
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .form-group input, .form-group select {
+        width: 100%;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        border: 1px solid var(--border-color);
+        background-color: var(--background-color);
+        color: var(--text-primary);
+    }
 </style>
 
-<div class="welcome-section">
-    <h1>Welcome to Your Dashboard, {{ Auth::user()->name }}!</h1>
-    <p>Here you can see your profile information, daily calorie needs, and more.</p>
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Welcome, {{ Auth::user()->name }}!</h1>
+        <button class="theme-toggle" onclick="toggleTheme()">
+            <i class="fas fa-moon"></i>
+        </button>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Calories Consumed</h3>
+            <div class="value">{{ $nutrition->calories_consumed ?? 0 }} / {{ $nutrition->calories_goal ?? 0 }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>Calories Burned</h3>
+            <div class="value" id="caloriesBurned">0</div>
+        </div>
+        <div class="stat-card">
+            <h3>Net Calories</h3>
+            <div class="value" id="netCalories">0</div>
+        </div>
+        <div class="stat-card">
+            <h3>Exercise Duration</h3>
+            <div class="value" id="exerciseDuration">0 min</div>
+        </div>
+    </div>
 
     <div class="chart-container">
         <canvas id="nutritionChart"></canvas>
-        <div id="caloriesText">0 kcal left</div>
     </div>
 
-    <button id="addFoodBtn">+ Add Food</button>
-
-    <div id="addFoodModal">
-        <div>
-            <h2>Add Food</h2>
-            <form id="addFoodForm">
-                <label for="foodName">Food Name</label><br>
-                <input type="text" id="foodName" required><br><br>
-                <label for="calories">Calories</label><br>
-                <input type="number" id="calories" required><br><br>
-                <label for="carbs">Carbs (g)</label><br>
-                <input type="number" id="carbs" required><br><br>
-                <label for="fat">Fat (g)</label><br>
-                <input type="number" id="fat" required><br><br>
-                <label for="protein">Protein (g)</label><br>
-                <input type="number" id="protein" required><br><br>
-                <button type="submit">Add Food</button>
-                <button type="button" id="closeModal">Cancel</button>
-            </form>
+    <div class="meal-section">
+        <h2>Meal Tracking</h2>
+        <div class="meal-tabs">
+            <div class="meal-tab active" data-meal="breakfast">Breakfast</div>
+            <div class="meal-tab" data-meal="lunch">Lunch</div>
+            <div class="meal-tab" data-meal="dinner">Dinner</div>
+            <div class="meal-tab" data-meal="snack">Snacks</div>
         </div>
+        <div id="mealContent">
+            <!-- Meal content will be loaded here -->
+        </div>
+        <button class="btn" onclick="showAddFoodModal()">Add Food</button>
     </div>
 
-    <div class="progress-bars">
-        <div>
-            <p>Carbs: <span id="carbsValue">{{ $nutrition->carbs_consumed ?? 0 }}</span> / {{ $nutrition->carbs_goal ?? 346 }} g</p>
-            <progress id="carbsProgress" value="{{ $nutrition->carbs_consumed ?? 0 }}" max="{{ $nutrition->carbs_goal ?? 346 }}"></progress>
+    <div class="history-section">
+        <h2>History</h2>
+        <div class="date-picker">
+            <input type="date" id="historyDate" onchange="loadHistory()">
         </div>
-        <div>
-            <p>Fat: <span id="fatValue">{{ $nutrition->fat_consumed ?? 0 }}</span> / {{ $nutrition->fat_goal ?? 64 }} g</p>
-            <progress id="fatProgress" value="{{ $nutrition->fat_consumed ?? 0 }}" max="{{ $nutrition->fat_goal ?? 64 }}"></progress>
+        <div id="historyContent">
+            <!-- History content will be loaded here -->
         </div>
-        <div>
-            <p>Protein: <span id="proteinValue">{{ $nutrition->protein_consumed ?? 0 }}</span> / {{ $nutrition->protein_goal ?? 86 }} g</p>
-            <progress id="proteinProgress" value="{{ $nutrition->protein_consumed ?? 0 }}" max="{{ $nutrition->protein_goal ?? 86 }}"></progress>
-        </div>
+    </div>
+</div>
+
+<!-- Add Food Modal -->
+<div id="addFoodModal" class="modal">
+    <div class="modal-content">
+        <h2>Add Food</h2>
+        <form id="addFoodForm">
+            <div class="form-group">
+                <label for="foodName">Food Name</label>
+                <input type="text" id="foodName" required>
+            </div>
+            <div class="form-group">
+                <label for="mealCategory">Meal Category</label>
+                <select id="mealCategory" required>
+                    <option value="breakfast">Breakfast</option>
+                    <option value="lunch">Lunch</option>
+                    <option value="dinner">Dinner</option>
+                    <option value="snack">Snack</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="calories">Calories</label>
+                <input type="number" id="calories" required>
+            </div>
+            <div class="form-group">
+                <label for="carbs">Carbs (g)</label>
+                <input type="number" id="carbs" required>
+            </div>
+            <div class="form-group">
+                <label for="fat">Fat (g)</label>
+                <input type="number" id="fat" required>
+            </div>
+            <div class="form-group">
+                <label for="protein">Protein (g)</label>
+                <input type="number" id="protein" required>
+            </div>
+            <button type="submit" class="btn">Add Food</button>
+            <button type="button" class="btn" onclick="closeAddFoodModal()">Cancel</button>
+        </form>
+    </div>
+</div>
+
+<!-- Add Exercise Modal -->
+<div id="addExerciseModal" class="modal">
+    <div class="modal-content">
+        <h2>Add Exercise</h2>
+        <form id="addExerciseForm">
+            <div class="form-group">
+                <label for="exerciseName">Exercise Name</label>
+                <input type="text" id="exerciseName" required>
+            </div>
+            <div class="form-group">
+                <label for="duration">Duration (minutes)</label>
+                <input type="number" id="duration" required>
+            </div>
+            <div class="form-group">
+                <label for="intensity">Intensity</label>
+                <select id="intensity" required>
+                    <option value="light">Light</option>
+                    <option value="moderate">Moderate</option>
+                    <option value="intense">Intense</option>
+                </select>
+            </div>
+            <button type="submit" class="btn">Add Exercise</button>
+            <button type="button" class="btn" onclick="closeAddExerciseModal()">Cancel</button>
+        </form>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        var ctx = document.getElementById('nutritionChart').getContext('2d');
+    // Theme Toggle
+    function toggleTheme() {
+        const body = document.body;
+        const currentTheme = body.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        body.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        
+        const icon = document.querySelector('.theme-toggle i');
+        icon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    }
 
-        var caloriesConsumed = {{ $nutrition->calories_consumed ?? 0 }};
-        var caloriesGoal = {{ $nutrition->calories_goal ?? 2310 }};
-        var caloriesLeft = caloriesGoal - caloriesConsumed;
+    // Load saved theme
+    document.addEventListener('DOMContentLoaded', function() {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+        const icon = document.querySelector('.theme-toggle i');
+        icon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    });
 
-        document.getElementById('caloriesText').innerText = caloriesLeft + " kcal left";
-
-        var calorieChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Consumed', 'Remaining'],
-                datasets: [{
-                    data: [caloriesConsumed, caloriesLeft],
-                    backgroundColor: ['#4195be', 'rgba(65, 149, 190, 0.3)'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                cutout: '70%',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
+    // Initialize Charts
+    const ctx = document.getElementById('nutritionChart').getContext('2d');
+    const nutritionChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Calories', 'Protein', 'Carbs', 'Fat'],
+            datasets: [{
+                label: 'Consumed',
+                data: [
+                    {{ $nutrition->calories_consumed ?? 0 }},
+                    {{ $nutrition->protein_consumed ?? 0 }},
+                    {{ $nutrition->carbs_consumed ?? 0 }},
+                    {{ $nutrition->fat_consumed ?? 0 }}
+                ],
+                backgroundColor: 'rgba(37, 99, 235, 0.5)',
+                borderColor: 'rgba(37, 99, 235, 1)',
+                borderWidth: 1
+            }, {
+                label: 'Goal',
+                data: [
+                    {{ $nutrition->calories_goal ?? 0 }},
+                    {{ $nutrition->protein_goal ?? 0 }},
+                    {{ $nutrition->carbs_goal ?? 0 }},
+                    {{ $nutrition->fat_goal ?? 0 }}
+                ],
+                backgroundColor: 'rgba(245, 158, 11, 0.5)',
+                borderColor: 'rgba(245, 158, 11, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
                 }
             }
-        });
+        }
+    });
 
-        var addFoodBtn = document.getElementById('addFoodBtn');
-        var addFoodModal = document.getElementById('addFoodModal');
-        var closeModalBtn = document.getElementById('closeModal');
-        var addFoodForm = document.getElementById('addFoodForm');
-
-        addFoodBtn.addEventListener('click', function () {
-            addFoodModal.style.display = 'flex';
-        });
-
-        closeModalBtn.addEventListener('click', function () {
-            addFoodModal.style.display = 'none';
-        });
-
-        addFoodForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            var foodName = document.getElementById('foodName').value;
-            var calories = parseInt(document.getElementById('calories').value);
-            var carbs = parseInt(document.getElementById('carbs').value);
-            var fat = parseInt(document.getElementById('fat').value);
-            var protein = parseInt(document.getElementById('protein').value);
-
-            fetch('{{ route('add.food') }}', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    food_name: foodName,
-                    calories: calories,
-                    carbs: carbs,
-                    fat: fat,
-                    protein: protein,
-                }),
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => { throw new Error(text); });
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    caloriesConsumed = data.calories_consumed;
-                    caloriesLeft = caloriesGoal - caloriesConsumed;
-
-                    calorieChart.data.datasets[0].data = [caloriesConsumed, caloriesLeft];
-                    calorieChart.update();
-
-                    document.getElementById('caloriesText').innerText = caloriesLeft + " kcal left";
-
-                    document.getElementById('carbsValue').innerText = data.carbs_consumed;
-                    document.getElementById('fatValue').innerText = data.fat_consumed;
-                    document.getElementById('proteinValue').innerText = data.protein_consumed;
-
-                    document.getElementById('carbsProgress').value = data.carbs_consumed;
-                    document.getElementById('fatProgress').value = data.fat_consumed;
-                    document.getElementById('proteinProgress').value = data.protein_consumed;
-
-                    addFoodModal.style.display = 'none';
-                    addFoodForm.reset();
-                } else {
-                    alert('Failed to add food entry.');
-                }
-            })
-            .catch(error => {
-                alert('Error: ' + error.message);
-            });
+    // Meal Tabs
+    document.querySelectorAll('.meal-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.meal-tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            loadMealContent(this.dataset.meal);
         });
     });
-</script>
 
+    // Load Meal Content
+    function loadMealContent(meal) {
+        // Implement meal content loading
+    }
+
+    // Load History
+    function loadHistory() {
+        const date = document.getElementById('historyDate').value;
+        fetch(`/exercise/history?date=${date}`)
+            .then(response => response.json())
+            .then(data => {
+                // Update history content
+                document.getElementById('caloriesBurned').textContent = data.total_calories_burned;
+                document.getElementById('exerciseDuration').textContent = `${data.total_duration} min`;
+                document.getElementById('netCalories').textContent = 
+                    {{ $nutrition->calories_consumed ?? 0 }} - data.total_calories_burned;
+            });
+    }
+
+    // Modal Functions
+    function showAddFoodModal() {
+        document.getElementById('addFoodModal').style.display = 'flex';
+    }
+
+    function closeAddFoodModal() {
+        document.getElementById('addFoodModal').style.display = 'none';
+    }
+
+    function showAddExerciseModal() {
+        document.getElementById('addExerciseModal').style.display = 'flex';
+    }
+
+    function closeAddExerciseModal() {
+        document.getElementById('addExerciseModal').style.display = 'none';
+    }
+
+    // Form Submissions
+    document.getElementById('addFoodForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        // Implement food submission
+    });
+
+    document.getElementById('addExerciseForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        // Implement exercise submission
+    });
+</script>
 @endsection
