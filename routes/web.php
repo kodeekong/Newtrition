@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\FoodController;
+use App\Http\Controllers\ExerciseController;
 
 // Public homepage
 Route::get('/', function () {
@@ -43,6 +44,10 @@ Route::middleware('auth')->group(function () {
 
     // Add food (separate route if needed)
     Route::post('/add-food', [FoodController::class, 'store'])->name('add.food');
+
+    // Exercise routes
+    Route::post('/exercise', [ExerciseController::class, 'store'])->name('exercise.store');
+    Route::get('/exercise/history', [ExerciseController::class, 'getHistory'])->name('exercise.history');
 });
 
 
