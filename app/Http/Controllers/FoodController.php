@@ -4,208 +4,217 @@ namespace App\Http\Controllers;
 
 use App\Models\Food;
 use App\Models\FoodEntry;
-use App\Models\TrackingNutrition;
-use App\Models\Profile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class FoodController extends Controller
 {
-    // Show food search form and list all foods
-    public function search()
+    /**
+     * Display food entries page
+     */
+    public function index()
     {
-        $user = Auth::user();
-        $profile = $user->profile;
-
-        $foodEntries = FoodEntry::where('user_id', $user->id)->get();
+        $foodEntries = FoodEntry::where('user_id', Auth::id())
+            ->orderBy('created_at', 'desc')
+            ->get();
         
-        return view('food.search', compact('profile', 'foodEntries'));
+        return view('food.entries', compact('foodEntries'));
     }
 
-    // Handle food search functionality
-    public function searchFood(Request $request)
-    {
-        $apiUrl = 'https://world.openfoodfacts.org/cgi/search.pl';
-        $query = $request->input('name');
-        $category = $request->input('category'); 
-        $barcode = $request->input('barcode');
+    /**
+     * Search for food items based on user input.
+     */
+    public function search(Request $request)
+    { 
+        try {
+            $query = $request->input('name');
+            $barcode = $request->input('barcode');
+            $dietary = $request->input('dietary', []);
+            $goals = $request->input('goals', []);
+            
+            // Nutrition ranges with default values
+            $caloriesMin = $request->input('calories_min', 0);
+            $caloriesMax = $request->input('calories_max', 2000);
+            $proteinMin = $request->input('protein_min', 0);
+            $proteinMax = $request->input('protein_max', 200);
+            $carbsMin = $request->input('carbs_min', 0);
+            $carbsMax = $request->input('carbs_max', 200);
+            $fatMin = $request->input('fat_min', 0);
+            $fatMax = $request->input('fat_max', 200);
 
-        $filters = [];
-        if ($category) {
-            $filters['category'] = $category;
-        }
-        if ($barcode) {
-            $filters['barcode'] = $barcode;
-        }
+            // Return empty results if no search criteria
+            if (empty($query) && empty($barcode) && empty($dietary) && empty($goals)) {
+                return view('food.search', ['foods' => []]);
+            }
 
-        if (empty($query) && empty($filters)) {
-            return redirect()->route('food.search')->with('error', 'Please enter a food name or use filters to search.');
-        }
+            if ($barcode) {
+                return $this->getFoodByBarcode($barcode);
+            }
 
-        // Make API request to Open Food Facts
-        $response = Http::get($apiUrl, array_merge([
-            'search_terms' => $query,
-            'json' => true,
-            'page_size' => 10,
-        ], $filters));
+            $apiUrl = 'https://world.openfoodfacts.org/cgi/search.pl';
+            $params = [
+                'json' => true,
+                'search_terms' => $query ?? '',
+                'page_size' => 24,
+                'country' => 'united-states',
+                'language' => 'en'
+            ];
 
-        if ($response->successful()) {
-            $foods = $response->json()['products'] ?? [];
-            return view('food.search', compact('foods'));
-        } else {
-            return redirect()->route('food.search')->with('error', 'Failed to fetch data from Open Food Facts.');
+            // Add dietary filters safely
+            if (!empty($dietary)) {
+                foreach ($dietary as $index => $diet) {
+                    if (in_array($diet, ['vegetarian', 'vegan', 'gluten-free', 'halal', 'meat', 'pescetarian'])) {
+                        $params["tagtype_$index"] = 'labels';
+                        $params["tag_contains_$index"] = 'contains';
+                        $params["tag_$index"] = $diet;
+                    }
+                }
+            }
+
+            // Add nutrition filters with validation
+            if (is_numeric($caloriesMin)) $params['nutriment_energy_100g_min'] = max(0, $caloriesMin);
+            if (is_numeric($caloriesMax)) $params['nutriment_energy_100g_max'] = min(5000, $caloriesMax);
+            if (is_numeric($proteinMin)) $params['nutriment_proteins_100g_min'] = max(0, $proteinMin);
+            if (is_numeric($proteinMax)) $params['nutriment_proteins_100g_max'] = min(200, $proteinMax);
+            if (is_numeric($carbsMin)) $params['nutriment_carbohydrates_100g_min'] = max(0, $carbsMin);
+            if (is_numeric($carbsMax)) $params['nutriment_carbohydrates_100g_max'] = min(200, $carbsMax);
+            if (is_numeric($fatMin)) $params['nutriment_fat_100g_min'] = max(0, $fatMin);
+            if (is_numeric($fatMax)) $params['nutriment_fat_100g_max'] = min(200, $fatMax);
+
+            $response = Http::get($apiUrl, $params);
+
+            if ($response->successful()) {
+                $foods = $response->json()['products'] ?? [];
+                return view('food.search', compact('foods'));
+            }
+
+            Log::error('Food API Error', [
+                'status' => $response->status(),
+                'body' => $response->body()
+            ]);
+
+            return view('food.search', [
+                'foods' => []
+            ])->with('error', 'Failed to fetch food data. Please try again.');
+
+        } catch (\Exception $e) {
+            Log::error('Food Search Error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return view('food.search', [
+                'foods' => []
+            ])->with('error', 'An error occurred while searching. Please try again.');
         }
     }
 
-    // Barcode scanner route
+    /**
+     * Search food by barcode.
+     */
     public function getFoodByBarcode($barcode)
     {
-        $apiUrl = 'https://world.openfoodfacts.org/api/v0/product/'.$barcode.'.json';
-        $response = Http::get($apiUrl);
+        try {
+            $apiUrl = 'https://world.openfoodfacts.org/api/v0/product/' . $barcode . '.json';
+            $response = Http::get($apiUrl);
 
-        if ($response->successful()) {
-            $food = $response->json();
-            return view('food.food-detail', compact('food'));
-        } else {
-            return redirect()->route('food.search')->with('error', 'Product not found by barcode.');
+            if ($response->successful()) {
+                $data = $response->json();
+                if (isset($data['product'])) {
+                    return view('food.search', [
+                        'foods' => [$data['product']]
+                    ]);
+                }
+            }
+
+            return redirect()->route('food.search')
+                ->with('error', 'Product not found for barcode.');
+
+        } catch (\Exception $e) {
+            Log::error('Barcode Search Error', [
+                'barcode' => $barcode,
+                'message' => $e->getMessage()
+            ]);
+
+            return redirect()->route('food.search')
+                ->with('error', 'Error searching by barcode. Please try again.');
         }
     }
 
-    // Add food to user's profile
-    public function addFoodToProfile(Request $request, $foodId)
-    {
-        $food = Food::findOrFail($foodId);
-        
-        $foodEntry = new FoodEntry();
-        $foodEntry->user_id = Auth::id();
-        $foodEntry->food_id = $food->id;
-        $foodEntry->quantity = 1;
-        $foodEntry->portion_size = 'medium';
-        $foodEntry->date = now();
-        $foodEntry->save();
-
-        return redirect()->route('food.search')->with('success', 'Food added to your profile.');
-    }
-
-    // Remove food from user's profile
-    public function removeFoodFromProfile($foodEntryId)
-    {
-        $foodEntry = FoodEntry::findOrFail($foodEntryId);
-
-        if ($foodEntry->user_id == Auth::id()) {
-            $foodEntry->delete();
-            return redirect()->route('food.search')->with('success', 'Food removed from your profile.');
-        }
-
-        return redirect()->route('food.search')->with('error', 'You can only remove foods from your own profile.');
-    }
-
-    // Get suggested foods based on user's profile goal
-    public function getSuggestedFoods()
-    {
-        $goal = Auth::user()->profile->goal;
-
-        $suggestedFoods = [];
-
-        if ($goal == 'gain_weight') {
-            $suggestedFoods = [
-                ['name' => 'Chicken Breast', 'description' => 'High protein to support muscle growth.'],
-                ['name' => 'Pasta', 'description' => 'Carbs to fuel energy for weight gain.'],
-                ['name' => 'Avocados', 'description' => 'Healthy fats to add extra calories.'],
-            ];
-        } elseif ($goal == 'lose_weight') {
-            $suggestedFoods = [
-                ['name' => 'Grilled Chicken', 'description' => 'Low-fat, high-protein for weight loss.'],
-                ['name' => 'Spinach', 'description' => 'Low-calorie vegetable for fiber.'],
-                ['name' => 'Olive Oil', 'description' => 'Healthy fats, in moderation.'],
-            ];
-        } else {
-            $suggestedFoods = [
-                ['name' => 'Salmon', 'description' => 'High in healthy fats and protein.'],
-                ['name' => 'Quinoa', 'description' => 'Complex carbs for balanced energy.'],
-                ['name' => 'Sweet Potatoes', 'description' => 'A balanced carb source.'],
-            ];
-        }
-
-        return response()->json($suggestedFoods);
-    }
-
+    /**
+     * Store a new food entry for the logged-in user.
+     */
     public function store(Request $request)
-{
-    $validated = $request->validate([
-        'food_name' => 'required|string|max:255',
-        'calories' => 'required|integer|min:0',
-        'carbs' => 'required|integer|min:0',
-        'fat' => 'required|integer|min:0',
-        'protein' => 'required|integer|min:0',
-    ]);
+    {
+        try {
+            $request->validate([
+                'food_name' => 'required|string|max:255',
+                'calories' => 'required|numeric|min:0',
+                'carbs' => 'required|numeric|min:0',
+                'fat' => 'required|numeric|min:0',
+                'protein' => 'required|numeric|min:0',
+                'quantity' => 'required|numeric|min:1'
+            ]);
 
-    $userId = auth()->id();
+            $foodEntry = new FoodEntry();
+            $foodEntry->user_id = Auth::id();
+            $foodEntry->food_name = $request->food_name;
+            $foodEntry->calories = $request->calories * $request->quantity;
+            $foodEntry->carbs = $request->carbs * $request->quantity;
+            $foodEntry->fat = $request->fat * $request->quantity;
+            $foodEntry->protein = $request->protein * $request->quantity;
+            $foodEntry->quantity = $request->quantity;
+            $foodEntry->save();
 
-    // Save the food entry
-    $foodEntry = new FoodEntry();
-    $foodEntry->user_id = $userId;
-    $foodEntry->food_name = $validated['food_name'];
-    $foodEntry->calories = $validated['calories'];
-    $foodEntry->carbs = $validated['carbs'];
-    $foodEntry->fat = $validated['fat'];
-    $foodEntry->protein = $validated['protein'];
-    $foodEntry->save();
+            if ($request->ajax()) {
+                return response()->json(['success' => true]);
+            }
 
-    // Get today's date
-    $currentDate = now()->toDateString();
+            return redirect()->back()->with('success', 'Food entry added successfully!');
 
-    // Update tracking_nutrition for today
-    $tracking = TrackingNutrition::firstOrCreate(
-        [
-            'user_id' => $userId,
-            'date' => $currentDate,
-        ],
-        [
-            'calories_goal' => 0,
-            'protein_goal' => 0,
-            'carbs_goal' => 0,
-            'fat_goal' => 0,
-            'calories_consumed' => 0,
-            'protein_consumed' => 0,
-            'carbs_consumed' => 0,
-            'fat_consumed' => 0,
-        ]
-    );
+        } catch (\Exception $e) {
+            Log::error('Food Entry Store Error', [
+                'message' => $e->getMessage(),
+                'data' => $request->all()
+            ]);
 
-    // Add the new food's nutrition to today's totals
-    $tracking->increment('calories_consumed', $validated['calories']);
-    $tracking->increment('protein_consumed', $validated['protein']);
-    $tracking->increment('carbs_consumed', $validated['carbs']);
-    $tracking->increment('fat_consumed', $validated['fat']);
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error adding food entry. Please try again.'
+                ], 500);
+            }
 
-    return response()->json([
-        'success' => true,
-        'calories_consumed' => $tracking->calories_consumed,
-        'carbs_consumed' => $tracking->carbs_consumed,
-        'fat_consumed' => $tracking->fat_consumed,
-        'protein_consumed' => $tracking->protein_consumed,
-    ]);
-}
-
-public function index()
-{
-    $nutrition = auth()->user()->nutrition;
-
-    if (!$nutrition->last_reset_at || $nutrition->last_reset_at->lt(Carbon::today())) {
-        $nutrition->update([
-            'calories_consumed' => 0,
-            'carbs_consumed' => 0,
-            'fat_consumed' => 0,
-            'protein_consumed' => 0,
-            'last_reset_at' => Carbon::today()
-        ]);
+            return redirect()->back()
+                ->with('error', 'Error adding food entry. Please try again.')
+                ->withInput();
+        }
     }
 
-    return view('dashboard', compact('nutrition'));
-}
+    /**
+     * Remove a food entry.
+     */
+    public function destroy($id)
+    {
+        try {
+            $entry = FoodEntry::where('user_id', Auth::id())
+                ->where('id', $id)
+                ->firstOrFail();
+                
+            $entry->delete();
 
+            return redirect()->back()->with('success', 'Food entry deleted successfully!');
 
+        } catch (\Exception $e) {
+            Log::error('Food Entry Delete Error', [
+                'id' => $id,
+                'message' => $e->getMessage()
+            ]);
+
+            return redirect()->back()
+                ->with('error', 'Error deleting food entry. Please try again.');
+        }
+    }
 }

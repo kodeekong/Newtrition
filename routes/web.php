@@ -34,12 +34,10 @@ Route::middleware('auth')->group(function () {
     // Food Routes
     Route::prefix('food')->name('food.')->group(function () {
         Route::get('search', [FoodController::class, 'search'])->name('search');
-        Route::get('search/results', [FoodController::class, 'searchFood'])->name('search.results');
-        Route::get('search/open-food-facts', [FoodController::class, 'searchOpenFoodFacts'])->name('search.openFoodFacts');
-        Route::post('add/{foodId}', [FoodController::class, 'addFoodToProfile'])->name('add');
-        Route::get('barcode/{barcode}', [FoodController::class, 'getFoodByBarcode'])->name('product');
-        Route::delete('remove/{foodEntryId}', [FoodController::class, 'removeFoodFromProfile'])->name('remove');
-        Route::get('suggested', [FoodController::class, 'getSuggestedFoods'])->name('suggested');
+        Route::get('entries', [FoodController::class, 'index'])->name('entries');
+        Route::post('store', [FoodController::class, 'store'])->name('store');
+        Route::delete('entries/{id}', [FoodController::class, 'destroy'])->name('remove');
+        Route::get('barcode/{barcode}', [FoodController::class, 'getFoodByBarcode'])->name('barcode');
     });
 
     // Add food (separate route if needed)
