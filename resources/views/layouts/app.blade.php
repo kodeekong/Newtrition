@@ -211,6 +211,7 @@
                 <nav>
                     <ul>
                         <li><a href="{{ route('food.search') }}"><i class="fas fa-search"></i> Food Search</a></li>
+                        <li><a href="{{ route('food.entries') }}">Food Entries</a></li> 
                         <li><a href="{{ route('dashboard') }}"><i class="fas fa-chart-line"></i> Dashboard</a></li>
                         <li><a href="{{ route('profile') }}"><i class="fas fa-user"></i> Profile</a></li>
                         <li>
