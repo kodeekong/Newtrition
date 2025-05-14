@@ -277,16 +277,12 @@ class FoodController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $request->validate([
             $validator = Validator::make($request->all(), [
                 'calories' => 'required|numeric|min:0',
                 'carbs' => 'required|numeric|min:0',
                 'fat' => 'required|numeric|min:0',
                 'protein' => 'required|numeric|min:0',
                 'quantity' => 'required|numeric|min:1',
-                'date' => 'required|date'
-            ]);
-
                 'portion_size' => 'nullable|string|max:255',
                 'meal_category' => 'required|in:breakfast,lunch,dinner,snack',
                 'date' => 'required|date'
