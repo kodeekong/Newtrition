@@ -235,6 +235,34 @@
     .btn-delete:hover {
         color: #dc2626;
     }
+
+    .history-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    .history-card {
+        background-color: var(--card-background);
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .history-card h3 {
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+    }
+
+    .history-item {
+        padding: 0.75rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .history-item:last-child {
+        border-bottom: none;
+    }
 </style>
 
 <div class="dashboard-container">
@@ -342,10 +370,23 @@
     <div class="history-section">
         <h2>History</h2>
         <div class="date-picker">
-            <input type="date" id="historyDate" onchange="loadHistory()">
+            <input type="date" id="historyDate" value="{{ date('Y-m-d') }}" onchange="loadHistory()">
         </div>
         <div id="historyContent">
-            <!-- History content will be loaded here -->
+            <div class="history-grid">
+                <div class="history-card">
+                    <h3>Exercise History</h3>
+                    <div id="exerciseHistory">
+                        <p>Loading...</p>
+                    </div>
+                </div>
+                <div class="history-card">
+                    <h3>Food History</h3>
+                    <div id="foodHistory">
+                        <p>Loading...</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -495,16 +536,60 @@
     // Load History
     function loadHistory() {
         const date = document.getElementById('historyDate').value;
+        
+        // Load exercise history
         fetch(`/exercise/history?date=${date}`)
             .then(response => response.json())
             .then(data => {
-                // Update history content
-                document.getElementById('caloriesBurned').textContent = data.total_calories_burned;
-                document.getElementById('exerciseDuration').textContent = `${data.total_duration} min`;
-                document.getElementById('netCalories').textContent = 
-                    {{ $nutrition->calories_consumed ?? 0 }} - data.total_calories_burned;
+                const exerciseHistory = document.getElementById('exerciseHistory');
+                if (data.exercises && data.exercises.length > 0) {
+                    exerciseHistory.innerHTML = data.exercises.map(exercise => `
+                        <div class="history-item">
+                            <strong>${exercise.exercise_name}</strong>
+                            <div>Duration: ${exercise.duration_minutes} min</div>
+                            <div>Calories Burned: ${exercise.calories_burned} kcal</div>
+                            <div>Intensity: ${exercise.intensity}</div>
+                        </div>
+                    `).join('');
+                } else {
+                    exerciseHistory.innerHTML = '<p>No exercises recorded for this date.</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Error loading exercise history:', error);
+                document.getElementById('exerciseHistory').innerHTML = 
+                    '<p>Error loading exercise history. Please try again.</p>';
+            });
+
+        // Load food history
+        fetch(`/food/history?date=${date}`)
+            .then(response => response.json())
+            .then(data => {
+                const foodHistory = document.getElementById('foodHistory');
+                if (data.food_entries && data.food_entries.length > 0) {
+                    foodHistory.innerHTML = data.food_entries.map(entry => `
+                        <div class="history-item">
+                            <strong>${entry.food_name}</strong>
+                            <div>Calories: ${entry.calories} kcal</div>
+                            <div>Protein: ${entry.protein}g | Carbs: ${entry.carbs}g | Fat: ${entry.fat}g</div>
+                            <div>Quantity: ${entry.quantity}</div>
+                        </div>
+                    `).join('');
+                } else {
+                    foodHistory.innerHTML = '<p>No food entries recorded for this date.</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Error loading food history:', error);
+                document.getElementById('foodHistory').innerHTML = 
+                    '<p>Error loading food history. Please try again.</p>';
             });
     }
+
+    // Load history on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        loadHistory();
+    });
 
     // Modal Functions
     function showAddFoodModal(mealType) {
@@ -527,12 +612,82 @@
     // Form Submissions
     document.getElementById('addFoodForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        // Implement food submission
+        const form = this;
+        const formData = new FormData(form);
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert(data.message || 'Error adding food entry');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error adding food entry. Please try again.');
+        });
     });
 
+    // Exercise Form Submission
     document.getElementById('addExerciseForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        // Implement exercise submission
+        const formData = new FormData(this);
+        
+        fetch('/exercise/store', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert(data.message || 'Error adding exercise');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error adding exercise. Please try again.');
+        });
     });
+
+    // Update exercise form to include CSRF token
+    const exerciseForm = document.getElementById('addExerciseForm');
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+    exerciseForm.innerHTML = `
+        @csrf
+        <div class="form-group">
+            <label for="exerciseName">Exercise Name</label>
+            <input type="text" id="exerciseName" name="exercise_name" required>
+        </div>
+        <div class="form-group">
+            <label for="duration">Duration (minutes)</label>
+            <input type="number" id="duration" name="duration_minutes" required>
+        </div>
+        <div class="form-group">
+            <label for="intensity">Intensity</label>
+            <select id="intensity" name="intensity" required>
+                <option value="light">Light</option>
+                <option value="moderate">Moderate</option>
+                <option value="intense">Intense</option>
+            </select>
+        </div>
+        <div class="modal-buttons">
+            <button type="submit" class="btn">Add Exercise</button>
+            <button type="button" class="btn" onclick="closeAddExerciseModal()">Cancel</button>
+        </div>
+    `;
 </script>
 @endsection

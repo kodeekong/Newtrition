@@ -23,7 +23,7 @@ class ProfileController extends Controller
         }
     
         $nutrition = TrackingNutrition::where('user_id', $user->id)->latest()->first();
-        
+            
         // Get total calories burned and exercise duration for today
         $today = Carbon::today();
         $exercises = Exercise::where('user_id', $user->id)
