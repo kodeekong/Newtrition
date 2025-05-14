@@ -12,10 +12,14 @@ class CreateEntriesTable extends Migration
             $table->id(); 
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('food_name');
-            $table->float('calories');
-            $table->float('carbs');
-            $table->float('fat');
-            $table->float('protein');
+            $table->decimal('calories', 8, 2);
+            $table->decimal('carbs', 8, 2);
+            $table->decimal('fat', 8, 2);
+            $table->decimal('protein', 8, 2);
+            $table->integer('quantity');
+            $table->string('portion_size')->nullable();
+            $table->enum('meal_category', ['breakfast', 'lunch', 'dinner', 'snack'])->default('snack');
+            $table->date('date');
             $table->timestamps();
         });
     }
