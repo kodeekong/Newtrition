@@ -31,23 +31,80 @@
     }
 
     .search-form {
+        margin-bottom: 30px;
+    }
+
+    .search-input-group {
         display: flex;
         gap: 15px;
-        margin-bottom: 20px;
+        margin-bottom: 15px;
     }
 
     .search-input {
         flex: 1;
-        padding: 12px 20px;
-        border: 2px solid var(--border-color);
-        border-radius: 10px;
+        padding: 15px 20px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
         font-size: 16px;
         transition: all 0.3s ease;
     }
 
     .search-input:focus {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        border-color: #4a90e2;
+        box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+        outline: none;
+    }
+
+    .search-btn {
+        padding: 15px 30px;
+        background: #4a90e2;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .search-btn:hover {
+        background: #357abd;
+    }
+
+    .barcode-section {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .barcode-input {
+        width: 200px;
+        padding: 12px 20px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 16px;
+    }
+
+    .barcode-btn {
+        padding: 12px 25px;
+        background: #f8f9fa;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .barcode-btn:hover {
+        background: #e9ecef;
+        border-color: #4a90e2;
     }
 
     .filters-container {
@@ -272,15 +329,6 @@
         z-index: 1001;
     }
 
-    .barcode-input {
-        padding: 12px 20px;
-        border: 2px solid var(--border-color);
-        border-radius: 10px;
-        font-size: 16px;
-        width: 200px;
-        margin-right: 10px;
-    }
-
     .macro-ranges {
         height: 100%;
         display: flex;
@@ -443,11 +491,29 @@
 
 <div class="container">
     <div class="search-container">
-        <form method="GET" action="{{ route('food.search') }}" class="search-form" id="searchForm">
-            <input type="text" name="name" value="{{ request('name') }}" 
-                   placeholder="Search for food..." class="search-input">
-            <input type="text" name="barcode" placeholder="Enter barcode..." class="barcode-input">
-            <button type="submit" class="scan-button">Search</button>
+        <form id="searchForm" action="{{ route('food.search') }}" method="GET" class="search-form">
+            <div class="search-input-group">
+                <input type="text" 
+                       name="name" 
+                       class="search-input" 
+                       placeholder="Search for foods..." 
+                       value="{{ request('name') }}"
+                       autocomplete="off">
+                <button type="submit" class="search-btn">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+
+            <div class="barcode-section">
+                <input type="text" 
+                       name="barcode" 
+                       class="barcode-input" 
+                       placeholder="Enter barcode manually" 
+                       value="{{ request('barcode') }}">
+                <button type="button" class="barcode-btn" onclick="showModal()">
+                    <i class="fas fa-barcode"></i> Scan Barcode
+                </button>
+            </div>
     </form>
 
         <div class="filters-container">
@@ -457,22 +523,16 @@
                     <h3>Dietary Preferences</h3>
                     <div class="checkbox-list">
                         <label class="checkbox-item">
-                            <input type="checkbox" name="dietary[]" value="meat"> Contains Meat
+                            <input type="checkbox" name="dietary[]" value="meat" {{ in_array('meat', request('dietary', [])) ? 'checked' : '' }}> Contains Meat
                         </label>
                         <label class="checkbox-item">
-                            <input type="checkbox" name="dietary[]" value="vegetarian"> Vegetarian
+                            <input type="checkbox" name="dietary[]" value="vegetarian" {{ in_array('vegetarian', request('dietary', [])) ? 'checked' : '' }}> Vegetarian
                         </label>
                         <label class="checkbox-item">
-                            <input type="checkbox" name="dietary[]" value="vegan"> Vegan
+                            <input type="checkbox" name="dietary[]" value="vegan" {{ in_array('vegan', request('dietary', [])) ? 'checked' : '' }}> Vegan
                         </label>
                         <label class="checkbox-item">
-                            <input type="checkbox" name="dietary[]" value="pescetarian"> Pescetarian
-                        </label>
-                        <label class="checkbox-item">
-                            <input type="checkbox" name="dietary[]" value="gluten-free"> Gluten Free
-                        </label>
-                        <label class="checkbox-item">
-                            <input type="checkbox" name="dietary[]" value="halal"> Halal
+                            <input type="checkbox" name="dietary[]" value="gluten-free" {{ in_array('gluten-free', request('dietary', [])) ? 'checked' : '' }}> Gluten Free
                         </label>
                     </div>
                 </div>
@@ -506,36 +566,12 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="filter-group">
-                    <h3>Goal-Based</h3>
-                    <div class="checkbox-list">
-                        <label class="checkbox-item">
-                            <input type="checkbox" name="goals[]" value="weight-loss"> Weight Loss
-                        </label>
-                        <label class="checkbox-item">
-                            <input type="checkbox" name="goals[]" value="muscle-gain"> Muscle Gain
-                        </label>
-                        <label class="checkbox-item">
-                            <input type="checkbox" name="goals[]" value="maintenance"> Maintenance
-                        </label>
-                        <label class="checkbox-item">
-                            <input type="checkbox" name="goals[]" value="low-carb"> Low Carb
-                        </label>
-                        <label class="checkbox-item">
-                            <input type="checkbox" name="goals[]" value="high-protein"> High Protein
-                        </label>
-                        <label class="checkbox-item">
-                            <input type="checkbox" name="goals[]" value="balanced"> Balanced Diet
-                        </label>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
 
+    <div class="food-grid">
     @if(isset($foods) && count($foods) > 0)
-        <div class="food-grid">
             @foreach($foods as $food)
                 <div class="food-card">
                     <div class="food-image-container">
@@ -584,205 +620,135 @@
                     </div>
                 </div>
             @endforeach
-        </div>
-    @elseif(request()->all())
-        <p style="text-align:center; color: var(--text-secondary); font-size: 18px; margin-top: 40px;">
-            No results found. Try adjusting your search or filters.
-        </p>
-    @endif
-</div>
-
-<!-- Barcode Scanner Container -->
-<div id="video-container">
-    <span class="close-scanner" onclick="stopScan()">×</span>
-    <video id="video" playsinline></video>
-</div>
-
-<!-- Add this before the closing body tag -->
-<div id="manualEntryModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3 class="modal-title">Add Manual Entry</h3>
-            <button class="close-modal" onclick="closeModal()">&times;</button>
-        </div>
-        <form id="manualEntryForm" action="{{ route('food.store') }}" method="POST" class="modal-form">
-            @csrf
-            <div class="form-group">
-                <label for="manual_food_name">Food Name</label>
-                <input type="text" id="manual_food_name" name="food_name" required>
-            </div>
-            <div class="form-group">
-                <label for="manual_calories">Calories</label>
-                <input type="number" id="manual_calories" name="calories" step="0.1" min="0" required>
-            </div>
-            <div class="form-group">
-                <label for="manual_carbs">Carbs (g)</label>
-                <input type="number" id="manual_carbs" name="carbs" step="0.1" min="0" required>
-            </div>
-            <div class="form-group">
-                <label for="manual_fat">Fat (g)</label>
-                <input type="number" id="manual_fat" name="fat" step="0.1" min="0" required>
-            </div>
-            <div class="form-group">
-                <label for="manual_protein">Protein (g)</label>
-                <input type="number" id="manual_protein" name="protein" step="0.1" min="0" required>
-            </div>
-            <div class="form-group">
-                <label for="manual_quantity">Quantity</label>
-                <input type="number" id="manual_quantity" name="quantity" min="1" value="1" required>
-            </div>
-            <div class="modal-buttons">
-                <button type="submit" class="modal-btn modal-btn-primary">Add Entry</button>
-                <button type="button" class="modal-btn modal-btn-secondary" onclick="closeModal()">Cancel</button>
-            </div>
-        </form>
+        @else
+            <p class="no-results">No results found. Try adjusting your search or filters.</p>
+        @endif
     </div>
+</div>
+
+<!-- Barcode Scanner Modal -->
+<div id="barcodeModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Scan Barcode</h2>
+        <div id="videoContainer"></div>
+        <div id="result"></div>
+        </div>
 </div>
 
 <script src="https://unpkg.com/@zxing/library@latest"></script>
 <script>
     let selectedDeviceId;
     const codeReader = new ZXing.BrowserMultiFormatReader();
+    let filterTimeout;
 
-    // Auto-submit form when filters change
-    document.querySelectorAll('input[type="checkbox"], input[type="number"]').forEach(input => {
-        input.addEventListener('change', () => {
-            document.querySelector('form').submit();
-        });
+    // Handle search form submission
+    document.getElementById('searchForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const params = new URLSearchParams();
+        
+        for (let [key, value] of formData.entries()) {
+            if (value) {
+                params.append(key, value);
+            }
+        }
+
+        window.location.href = `${this.action}?${params.toString()}`;
     });
 
-    async function startScan() {
-        const videoContainer = document.getElementById('video-container');
-        const videoElement = document.getElementById('video');
-        
-        try {
-            videoContainer.style.display = 'block';
-            const devices = await navigator.mediaDevices.enumerateDevices();
-            const videoDevices = devices.filter(device => device.kind === 'videoinput');
-            
-            if (videoDevices.length > 0) {
-                selectedDeviceId = videoDevices[0].deviceId;
-                const constraints = {
-                    video: { deviceId: selectedDeviceId }
-                };
+    // Handle filter changes with debounce
+    document.querySelectorAll('input[type="checkbox"], input[type="number"]').forEach(input => {
+        input.addEventListener('change', () => {
+            clearTimeout(filterTimeout);
+            filterTimeout = setTimeout(() => {
+                const form = document.getElementById('searchForm');
+                const formData = new FormData(form);
+                const params = new URLSearchParams();
                 
-                const stream = await navigator.mediaDevices.getUserMedia(constraints);
-                videoElement.srcObject = stream;
-                videoElement.play();
-
-                codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', (result, err) => {
-                    if (result) {
-                        const barcodeInput = document.createElement('input');
-                        barcodeInput.type = 'hidden';
-                        barcodeInput.name = 'barcode';
-                        barcodeInput.value = result.text;
-                        document.querySelector('form').appendChild(barcodeInput);
-                        stopScan();
-                        document.querySelector('form').submit();
+                for (let [key, value] of formData.entries()) {
+                    if (value) {
+                        params.append(key, value);
                     }
-                });
-            }
-        } catch (err) {
-            console.error('Error accessing camera:', err);
-            alert('Error accessing camera. Please make sure you have granted camera permissions.');
-        }
-    }
-
-    function stopScan() {
-        const videoContainer = document.getElementById('video-container');
-        const videoElement = document.getElementById('video');
-        
-        codeReader.reset();
-        if (videoElement.srcObject) {
-            videoElement.srcObject.getTracks().forEach(track => track.stop());
-        }
-        videoContainer.style.display = 'none';
-    }
-
-    // Handle form submission without page reload
-    document.querySelectorAll('.add-to-log-form').forEach(form => {
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            try {
-                const response = await fetch(form.action, {
-                    method: 'POST',
-                    body: new FormData(form),
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                });
-                const data = await response.json();
-                if (data.success) {
-                    alert('Food added to log successfully!');
-                } else {
-                    alert('Error adding food to log. Please try again.');
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error adding food to log. Please try again.');
-            }
-        });
-    });
 
-    // Handle filter changes without signing out
-    let timeout;
-    document.querySelectorAll('input[type="checkbox"], input[type="number"]').forEach(input => {
-        input.addEventListener('change', () => {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => {
-                document.getElementById('searchForm').submit();
+                window.location.href = `${form.action}?${params.toString()}`;
             }, 500);
         });
     });
 
+    // Handle form submissions
+    document.querySelectorAll('.add-to-log-form').forEach(form => {
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            try {
+                const formData = new FormData(this);
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert('Food entry added successfully!');
+                    window.location.href = '{{ route("food.entries") }}';
+                } else {
+                    alert(data.message || 'Error adding food entry. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error adding food entry. Please try again.');
+            }
+        });
+    });
+
     function showModal() {
-        document.getElementById('manualEntryModal').style.display = 'flex';
+        const modal = document.getElementById('barcodeModal');
+        const videoContainer = document.getElementById('videoContainer');
+        modal.style.display = 'block';
+        videoContainer.style.display = 'block';
+
+        codeReader.listVideoInputDevices()
+            .then(videoInputDevices => {
+                if (videoInputDevices.length > 0) {
+                    selectedDeviceId = videoInputDevices[0].deviceId;
+                    startScanning();
+                } else {
+                    document.getElementById('result').textContent = 'No camera found';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById('result').textContent = 'Error accessing camera';
+            });
     }
 
     function closeModal() {
-        document.getElementById('manualEntryModal').style.display = 'none';
+        const modal = document.getElementById('barcodeModal');
+        const videoContainer = document.getElementById('videoContainer');
+        modal.style.display = 'none';
+        videoContainer.style.display = 'none';
+        codeReader.reset();
     }
 
-    // Close modal when clicking outside
-    window.onclick = function(event) {
-        const modal = document.getElementById('manualEntryModal');
-        if (event.target === modal) {
-            closeModal();
-        }
-    }
-
-    // Handle manual entry form submission
-    document.getElementById('manualEntryForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        try {
-            const response = await fetch(this.action, {
-                method: 'POST',
-                body: new FormData(this),
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-            const data = await response.json();
-            if (data.success) {
+    function startScanning() {
+        const videoContainer = document.getElementById('videoContainer');
+        codeReader.decodeFromVideoDevice(selectedDeviceId, videoContainer, (result, err) => {
+            if (result) {
+                document.getElementById('result').textContent = `Barcode: ${result.text}`;
+                document.querySelector('input[name="barcode"]').value = result.text;
+                codeReader.reset();
                 closeModal();
-                alert('Food entry added successfully!');
-                // Optionally refresh the page or update the UI
-                window.location.reload();
-            } else {
-                alert('Error adding food entry. Please try again.');
+                document.getElementById('searchForm').submit();
             }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Error adding food entry. Please try again.');
-        }
-    });
-
-    // Add click event to the "Add to Entries" button
-    document.querySelectorAll('.add-to-entries-btn').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            showModal();
+            if (err && !(err instanceof ZXing.NotFoundException)) {
+                console.error(err);
+                document.getElementById('result').textContent = 'Error scanning barcode';
+            }
         });
-    });
+    }
 </script>
 @endsection

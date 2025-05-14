@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class FoodController extends Controller
 {
@@ -18,7 +19,12 @@ class FoodController extends Controller
     {
         $foodEntries = FoodEntry::where('user_id', Auth::id())
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($entry) {
+                // Ensure date is properly formatted
+                $entry->date = $entry->date ?? $entry->created_at;
+                return $entry;
+            });
         
         return view('food.entries', compact('foodEntries'));
     }
@@ -32,7 +38,6 @@ class FoodController extends Controller
             $query = $request->input('name');
             $barcode = $request->input('barcode');
             $dietary = $request->input('dietary', []);
-            $goals = $request->input('goals', []);
             
             // Nutrition ranges with default values
             $caloriesMin = $request->input('calories_min', 0);
@@ -45,7 +50,7 @@ class FoodController extends Controller
             $fatMax = $request->input('fat_max', 200);
 
             // Return empty results if no search criteria
-            if (empty($query) && empty($barcode) && empty($dietary) && empty($goals)) {
+            if (empty($query) && empty($barcode) && empty($dietary)) {
                 return view('food.search', ['foods' => []]);
             }
 
@@ -57,7 +62,10 @@ class FoodController extends Controller
             $params = [
                 'json' => true,
                 'search_terms' => $query ?? '',
-                'page_size' => 24,
+                'page_size' => 8, // Reduced to 8 results per page
+                'page' => $request->input('page', 1),
+                'sort_by' => 'popularity_key',
+                'fields' => 'product_name,image_url,nutriments,quantity',
                 'country' => 'united-states',
                 'language' => 'en'
             ];
@@ -83,10 +91,29 @@ class FoodController extends Controller
             if (is_numeric($fatMin)) $params['nutriment_fat_100g_min'] = max(0, $fatMin);
             if (is_numeric($fatMax)) $params['nutriment_fat_100g_max'] = min(200, $fatMax);
 
-            $response = Http::get($apiUrl, $params);
+            $response = Http::timeout(10)->get($apiUrl, $params);
 
             if ($response->successful()) {
-                $foods = $response->json()['products'] ?? [];
+                $data = $response->json();
+                $foods = $data['products'] ?? [];
+                
+                // Filter out products with missing essential data
+                $foods = array_filter($foods, function($food) {
+                    return !empty($food['product_name']) && 
+                           isset($food['nutriments']['energy-kcal_100g']) &&
+                           isset($food['nutriments']['proteins_100g']) &&
+                           isset($food['nutriments']['carbohydrates_100g']) &&
+                           isset($food['nutriments']['fat_100g']);
+                });
+
+                if ($request->ajax()) {
+                    return response()->json([
+                        'foods' => $foods,
+                        'current_page' => $request->input('page', 1),
+                        'last_page' => ceil(($data['count'] ?? 0) / 8)
+                    ]);
+                }
+
                 return view('food.search', compact('foods'));
             }
 
@@ -149,14 +176,30 @@ class FoodController extends Controller
     public function store(Request $request)
     {
         try {
-            $request->validate([
+            $validator = Validator::make($request->all(), [
                 'food_name' => 'required|string|max:255',
                 'calories' => 'required|numeric|min:0',
                 'carbs' => 'required|numeric|min:0',
                 'fat' => 'required|numeric|min:0',
                 'protein' => 'required|numeric|min:0',
-                'quantity' => 'required|numeric|min:1'
+                'quantity' => 'required|numeric|min:1',
+                'portion_size' => 'nullable|string|max:255',
+                'meal_category' => 'required|in:breakfast,lunch,dinner,snack',
+                'date' => 'required|date'
             ]);
+
+            if ($validator->fails()) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Validation failed',
+                        'errors' => $validator->errors()
+                    ], 422);
+                }
+                return redirect()->route('food.entries')
+                    ->withErrors($validator)
+                    ->withInput();
+            }
 
             $foodEntry = new FoodEntry();
             $foodEntry->user_id = Auth::id();
@@ -166,29 +209,39 @@ class FoodController extends Controller
             $foodEntry->fat = $request->fat * $request->quantity;
             $foodEntry->protein = $request->protein * $request->quantity;
             $foodEntry->quantity = $request->quantity;
+            $foodEntry->portion_size = $request->portion_size;
+            $foodEntry->meal_category = $request->meal_category;
+            $foodEntry->date = $request->date;
             $foodEntry->save();
 
             if ($request->ajax()) {
-                return response()->json(['success' => true]);
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Food entry added successfully!'
+                ]);
             }
 
-            return redirect()->back()->with('success', 'Food entry added successfully!');
+            return redirect()->route('food.entries')
+                ->with('success', 'Food entry added successfully!');
 
         } catch (\Exception $e) {
             Log::error('Food Entry Store Error', [
                 'message' => $e->getMessage(),
-                'data' => $request->all()
+                'data' => $request->all(),
+                'trace' => $e->getTraceAsString()
             ]);
+
+            $errorMessage = 'Error adding food entry: ' . $e->getMessage();
 
             if ($request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error adding food entry. Please try again.'
+                    'message' => $errorMessage
                 ], 500);
             }
 
-            return redirect()->back()
-                ->with('error', 'Error adding food entry. Please try again.')
+            return redirect()->route('food.entries')
+                ->with('error', $errorMessage)
                 ->withInput();
         }
     }
@@ -225,6 +278,7 @@ class FoodController extends Controller
     {
         try {
             $request->validate([
+            $validator = Validator::make($request->all(), [
                 'calories' => 'required|numeric|min:0',
                 'carbs' => 'required|numeric|min:0',
                 'fat' => 'required|numeric|min:0',
@@ -232,6 +286,17 @@ class FoodController extends Controller
                 'quantity' => 'required|numeric|min:1',
                 'date' => 'required|date'
             ]);
+
+                'portion_size' => 'nullable|string|max:255',
+                'meal_category' => 'required|in:breakfast,lunch,dinner,snack',
+                'date' => 'required|date'
+            ]);
+
+            if ($validator->fails()) {
+                return redirect()->back()
+                    ->withErrors($validator)
+                    ->withInput();
+            }
 
             $entry = FoodEntry::where('user_id', Auth::id())
                 ->where('id', $id)
@@ -242,6 +307,8 @@ class FoodController extends Controller
             $entry->fat = $request->fat;
             $entry->protein = $request->protein;
             $entry->quantity = $request->quantity;
+            $entry->portion_size = $request->portion_size;
+            $entry->meal_category = $request->meal_category;
             $entry->date = $request->date;
             $entry->save();
 
@@ -252,6 +319,7 @@ class FoodController extends Controller
                 'id' => $id,
                 'message' => $e->getMessage(),
                 'data' => $request->all()
+
             ]);
 
             return redirect()->back()

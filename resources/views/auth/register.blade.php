@@ -43,6 +43,13 @@ body {
     padding: 30px;
 }
 
+.form-label {
+    display: inline-block;
+    width: 140px;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
 .form-control {
     border-radius: 8px;
     border: 1px solid #4195be;
@@ -50,6 +57,9 @@ body {
     font-size: 1rem;
     margin-bottom: 20px;
     transition: all 0.3s ease;
+    width: calc(100% - 150px);
+    display: inline-block;
+    vertical-align: middle;
 }
 
 .form-control:focus {
@@ -80,6 +90,14 @@ a {
 
 a:hover {
     text-decoration: underline;
+}
+
+.text-danger {
+    display: block;
+    margin-left: 150px;
+    margin-top: -15px;
+    margin-bottom: 15px;
+    color: #dc3545;
 }
 
 @media (max-width: 600px) {
