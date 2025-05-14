@@ -322,6 +322,22 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    // PHP to JavaScript variables
+    const nutritionValues = {
+        consumed: {
+            calories: {{ $nutrition->calories_consumed ?? 0 }},
+            protein: {{ $nutrition->protein_consumed ?? 0 }},
+            carbs: {{ $nutrition->carbs_consumed ?? 0 }},
+            fat: {{ $nutrition->fat_consumed ?? 0 }}
+        },
+        goals: {
+            calories: {{ $nutrition->calories_goal ?? 0 }},
+            protein: {{ $nutrition->protein_goal ?? 0 }},
+            carbs: {{ $nutrition->carbs_goal ?? 0 }},
+            fat: {{ $nutrition->fat_goal ?? 0 }}
+        }
+    };
+
     // Theme Toggle
     function toggleTheme() {
         const body = document.body;
@@ -340,45 +356,47 @@
         document.body.setAttribute('data-theme', savedTheme);
         const icon = document.querySelector('.theme-toggle i');
         icon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-    });
 
-    // Initialize Charts
-    const ctx = document.getElementById('nutritionChart').getContext('2d');
-    const nutritionChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['Calories', 'Protein', 'Carbs', 'Fat'],
-            datasets: [{
-                label: 'Consumed',
-                data: [
-                    {{ $nutrition->calories_consumed ?? 0 }},
-                    {{ $nutrition->protein_consumed ?? 0 }},
-                    {{ $nutrition->carbs_consumed ?? 0 }},
-                    {{ $nutrition->fat_consumed ?? 0 }}
-                ],
-                backgroundColor: 'rgba(37, 99, 235, 0.5)',
-                borderColor: 'rgba(37, 99, 235, 1)',
-                borderWidth: 1
-            }, {
-                label: 'Goal',
-                data: [
-                    {{ $nutrition->calories_goal ?? 0 }},
-                    {{ $nutrition->protein_goal ?? 0 }},
-                    {{ $nutrition->carbs_goal ?? 0 }},
-                    {{ $nutrition->fat_goal ?? 0 }}
-                ],
-                backgroundColor: 'rgba(245, 158, 11, 0.5)',
-                borderColor: 'rgba(245, 158, 11, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
+        // Initialize Charts
+        const ctx = document.getElementById('nutritionChart');
+        if (ctx) {
+            new Chart(ctx.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Calories', 'Protein', 'Carbs', 'Fat'],
+                    datasets: [{
+                        label: 'Consumed',
+                        data: [
+                            nutritionValues.consumed.calories,
+                            nutritionValues.consumed.protein,
+                            nutritionValues.consumed.carbs,
+                            nutritionValues.consumed.fat
+                        ],
+                        backgroundColor: 'rgba(37, 99, 235, 0.5)',
+                        borderColor: 'rgba(37, 99, 235, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: 'Goal',
+                        data: [
+                            nutritionValues.goals.calories,
+                            nutritionValues.goals.protein,
+                            nutritionValues.goals.carbs,
+                            nutritionValues.goals.fat
+                        ],
+                        backgroundColor: 'rgba(245, 158, 11, 0.5)',
+                        borderColor: 'rgba(245, 158, 11, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
                 }
-            }
+            });
         }
     });
 
@@ -393,49 +411,72 @@
 
     // Load Meal Content
     function loadMealContent(meal) {
-        // Implement meal content loading
+        const mealContent = document.getElementById('mealContent');
+        if (mealContent) {
+            // Implement meal content loading
+            mealContent.innerHTML = `<p>Loading ${meal} content...</p>`;
+        }
     }
 
     // Load History
     function loadHistory() {
-        const date = document.getElementById('historyDate').value;
+        const date = document.getElementById('historyDate')?.value;
+        if (!date) return;
+
         fetch(`/exercise/history?date=${date}`)
             .then(response => response.json())
             .then(data => {
-                // Update history content
-                document.getElementById('caloriesBurned').textContent = data.total_calories_burned;
-                document.getElementById('exerciseDuration').textContent = `${data.total_duration} min`;
-                document.getElementById('netCalories').textContent = 
-                    {{ $nutrition->calories_consumed ?? 0 }} - data.total_calories_burned;
+                const caloriesBurned = document.getElementById('caloriesBurned');
+                const exerciseDuration = document.getElementById('exerciseDuration');
+                const netCalories = document.getElementById('netCalories');
+
+                if (caloriesBurned) caloriesBurned.textContent = data.total_calories_burned || 0;
+                if (exerciseDuration) exerciseDuration.textContent = `${data.total_duration || 0} min`;
+                if (netCalories) netCalories.textContent = nutritionValues.consumed.calories - (data.total_calories_burned || 0);
+            })
+            .catch(error => {
+                console.error('Error loading history:', error);
             });
     }
 
     // Modal Functions
     function showAddFoodModal() {
-        document.getElementById('addFoodModal').style.display = 'flex';
+        const modal = document.getElementById('addFoodModal');
+        if (modal) modal.style.display = 'flex';
     }
 
     function closeAddFoodModal() {
-        document.getElementById('addFoodModal').style.display = 'none';
+        const modal = document.getElementById('addFoodModal');
+        if (modal) modal.style.display = 'none';
     }
 
     function showAddExerciseModal() {
-        document.getElementById('addExerciseModal').style.display = 'flex';
+        const modal = document.getElementById('addExerciseModal');
+        if (modal) modal.style.display = 'flex';
     }
 
     function closeAddExerciseModal() {
-        document.getElementById('addExerciseModal').style.display = 'none';
+        const modal = document.getElementById('addExerciseModal');
+        if (modal) modal.style.display = 'none';
     }
 
     // Form Submissions
-    document.getElementById('addFoodForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        // Implement food submission
-    });
+    const addFoodForm = document.getElementById('addFoodForm');
+    if (addFoodForm) {
+        addFoodForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Implement food submission
+            console.log('Food form submitted');
+        });
+    }
 
-    document.getElementById('addExerciseForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        // Implement exercise submission
-    });
+    const addExerciseForm = document.getElementById('addExerciseForm');
+    if (addExerciseForm) {
+        addExerciseForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Implement exercise submission
+            console.log('Exercise form submitted');
+        });
+    }
 </script>
 @endsection

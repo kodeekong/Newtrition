@@ -12,7 +12,7 @@ return new class extends Migration
         Schema::table('food_entries', function (Blueprint $table) {
             // Only add meal_category if it doesn't exist
             if (!Schema::hasColumn('food_entries', 'meal_category')) {
-                $table->enum('meal_category', ['breakfast', 'lunch', 'dinner', 'snack'])->default('snack');
+            $table->enum('meal_category', ['breakfast', 'lunch', 'dinner', 'snack'])->default('snack');
             }
             // Remove the date column addition since it already exists
         });

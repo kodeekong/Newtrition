@@ -17,6 +17,8 @@ class FoodEntry extends Model
         'fat',
         'protein',
         'quantity',
+        'portion_size',
+        'meal_category',
         'date',
     ];
 

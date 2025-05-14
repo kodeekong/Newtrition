@@ -38,6 +38,7 @@ Route::middleware('auth')->group(function () {
         Route::post('store', [FoodController::class, 'store'])->name('store');
         Route::delete('entries/{id}', [FoodController::class, 'destroy'])->name('remove');
         Route::get('barcode/{barcode}', [FoodController::class, 'getFoodByBarcode'])->name('barcode');
+        Route::put('entries/{id}', [FoodController::class, 'update'])->name('update');
     });
 
     // Add food (separate route if needed)
