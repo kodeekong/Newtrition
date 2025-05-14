@@ -3,8 +3,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Profile;
 use App\Models\TrackingNutrition;
+use App\Models\Exercise;
+use App\Models\FoodEntry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 
 class ProfileController extends Controller
@@ -20,8 +23,48 @@ class ProfileController extends Controller
         }
     
         $nutrition = TrackingNutrition::where('user_id', $user->id)->latest()->first();
+        
+        // Get total calories burned and exercise duration for today
+        $today = Carbon::today();
+        $exercises = Exercise::where('user_id', $user->id)
+            ->whereDate('date', $today)
+            ->get();
+            
+        $totalCaloriesBurned = $exercises->sum('calories_burned');
+        $totalExerciseDuration = $exercises->sum('duration_minutes');
+        
+        // Get food entries for today
+        $foodEntries = FoodEntry::where('user_id', $user->id)
+            ->whereDate('created_at', $today)
+            ->get();
+            
+        // Calculate total calories and macros consumed
+        $totalCaloriesConsumed = $foodEntries->sum('calories');
+        $totalProteinConsumed = $foodEntries->sum('protein');
+        $totalCarbsConsumed = $foodEntries->sum('carbs');
+        $totalFatConsumed = $foodEntries->sum('fat');
+        
+        // Update nutrition tracking
+        if ($nutrition) {
+            $nutrition->calories_consumed = $totalCaloriesConsumed;
+            $nutrition->protein_consumed = $totalProteinConsumed;
+            $nutrition->carbs_consumed = $totalCarbsConsumed;
+            $nutrition->fat_consumed = $totalFatConsumed;
+            $nutrition->save();
+        }
+        
+        // Calculate net calories
+        $netCalories = $totalCaloriesConsumed - $totalCaloriesBurned;
     
-        return view('user.dashboard', compact('user', 'profile', 'nutrition'));
+        return view('user.dashboard', compact(
+            'user', 
+            'profile', 
+            'nutrition', 
+            'totalCaloriesBurned', 
+            'totalExerciseDuration',
+            'netCalories',
+            'foodEntries'
+        ));
     }
 
     public function showForm()

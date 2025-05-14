@@ -4,146 +4,314 @@
 
 @section('content')
 <style>
-    .food-log { padding: 20px; max-width: 1200px; margin: 0 auto; }
-    .food-log table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-    .food-log th, .food-log td { padding: 12px 15px; border: 1px solid #ccc; text-align: center; }
-    .food-log th { background-color: #f4f4f4; }
-    .food-log tr:nth-child(even) { background-color: #f9f9f9; }
-    .food-log tr:hover { background-color: #f1f1f1; }
-    .food-log h1 { text-align: center; margin-bottom: 20px; }
-    .manual-entry-form {
-        background: white;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        margin-bottom: 30px;
+    .food-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
     }
+
+    .food-header {
+        margin-bottom: 2rem;
+    }
+
+    .food-title {
+        color: var(--text-primary);
+        font-size: 1.875rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .food-subtitle {
+        color: var(--text-secondary);
+        font-size: 1rem;
+    }
+
+    .food-form {
+        background: var(--card-background);
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        margin-bottom: 2rem;
+    }
+
+    .form-title {
+        color: var(--text-primary);
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+
     .form-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 15px;
-        margin-bottom: 20px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
     }
+
     .form-group {
-        display: flex;
-        flex-direction: column;
+        margin-bottom: 1rem;
     }
-    .form-group label {
-        margin-bottom: 5px;
-        color: #666;
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
     }
+
+    .form-label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
     .form-input {
-        padding: 8px 12px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 14px;
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--text-primary);
+        background-color: var(--input-background);
+        transition: all 0.2s;
     }
-    .submit-btn {
-        background-color: #4CAF50;
+
+    .form-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px var(--primary-color-transparent);
+    }
+
+    .form-input::placeholder {
+        color: var(--text-secondary);
+    }
+
+    .submit-button {
+        width: 100%;
+        padding: 0.875rem 1.5rem;
+        background-color: var(--primary-color);
         color: white;
-        padding: 10px 20px;
+        font-weight: 500;
         border: none;
-        border-radius: 4px;
+        border-radius: 0.5rem;
         cursor: pointer;
-        font-size: 16px;
+        transition: all 0.2s;
+        margin-top: 1rem;
     }
-    .submit-btn:hover {
-        background-color: #45a049;
+
+    .submit-button:hover {
+        background-color: var(--primary-color-dark);
     }
+
+    .submit-button:active {
+        transform: scale(0.98);
+    }
+
+    .food-table {
+        width: 100%;
+        background: var(--card-background);
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        overflow: hidden;
+    }
+
+    .food-table th {
+        background-color: var(--table-header-background);
+        padding: 1rem;
+        text-align: left;
+        font-weight: 500;
+        color: var(--text-primary);
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .food-table td {
+        padding: 1rem;
+        color: var(--text-primary);
+        font-size: 0.875rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .food-table tr:hover {
+        background-color: var(--hover-color);
+    }
+
     .action-buttons {
         display: flex;
-        gap: 8px;
-        justify-content: center;
+        gap: 0.5rem;
     }
+
     .btn {
-        padding: 6px 12px;
-        border: none;
-        border-radius: 4px;
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        font-size: 0.875rem;
+        font-weight: 500;
         cursor: pointer;
-        font-size: 14px;
-        transition: all 0.3s ease;
+        transition: all 0.2s;
     }
+
     .btn-edit {
-        background-color: #2196F3;
+        background-color: var(--primary-color);
         color: white;
+        border: none;
     }
+
     .btn-edit:hover {
-        background-color: #1976D2;
+        background-color: var(--primary-color-dark);
     }
+
     .btn-delete {
-        background-color: #f44336;
+        background-color: var(--error-color);
         color: white;
+        border: none;
     }
+
     .btn-delete:hover {
-        background-color: #d32f2f;
+        background-color: var(--error-color-dark);
     }
+
     .edit-form {
         display: none;
+        margin-top: 1rem;
+        padding: 1rem;
+        background-color: var(--input-background);
+        border-radius: 0.5rem;
     }
+
     .edit-form.active {
-        display: flex;
-        gap: 10px;
-        align-items: center;
+        display: block;
     }
-    .edit-input {
-        width: 80px;
-        padding: 5px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        background: var(--card-background);
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
-    .edit-select {
-        padding: 5px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
+
+    .empty-state p {
+        color: var(--text-secondary);
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .food-table {
+            display: block;
+            overflow-x: auto;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+        }
     }
 </style>
 
-<div class="food-log">
-    <h1>Food Entry</h1>
+<div class="food-container">
+    <div class="food-header">
+        <h1 class="food-title">Food Entry</h1>
+        <p class="food-subtitle">Track your daily nutrition intake</p>
+    </div>
 
-    <!-- Manual Entry Form -->
-    <div class="manual-entry-form">
-        <h2 style="margin-bottom: 20px;">Add New Food Entry</h2>
+    <div class="food-form">
+        <h2 class="form-title">Add New Food Entry</h2>
         <form action="{{ route('food.store') }}" method="POST">
             @csrf
             <div class="form-grid">
-                <div class="form-group">
-                    <label for="food_name">Food Name</label>
-                    <input type="text" id="food_name" name="food_name" class="form-input" required>
+                <div class="form-group full-width">
+                    <label for="food_name" class="form-label">Food Name</label>
+                    <input type="text" 
+                           id="food_name" 
+                           name="food_name" 
+                           class="form-input"
+                           placeholder="e.g., Grilled Chicken Breast"
+                           required>
                 </div>
+
                 <div class="form-group">
-                    <label for="calories">Calories</label>
-                    <input type="number" id="calories" name="calories" class="form-input" step="0.1" required>
+                    <label for="calories" class="form-label">Calories</label>
+                    <input type="number" 
+                           id="calories" 
+                           name="calories" 
+                           class="form-input"
+                           step="0.1"
+                           placeholder="e.g., 250"
+                           required>
                 </div>
+
                 <div class="form-group">
-                    <label for="carbs">Carbs (g)</label>
-                    <input type="number" id="carbs" name="carbs" class="form-input" step="0.1" required>
+                    <label for="carbs" class="form-label">Carbs (g)</label>
+                    <input type="number" 
+                           id="carbs" 
+                           name="carbs" 
+                           class="form-input"
+                           step="0.1"
+                           placeholder="e.g., 30"
+                           required>
                 </div>
+
                 <div class="form-group">
-                    <label for="fat">Fat (g)</label>
-                    <input type="number" id="fat" name="fat" class="form-input" step="0.1" required>
+                    <label for="fat" class="form-label">Fat (g)</label>
+                    <input type="number" 
+                           id="fat" 
+                           name="fat" 
+                           class="form-input"
+                           step="0.1"
+                           placeholder="e.g., 10"
+                           required>
                 </div>
+
                 <div class="form-group">
-                    <label for="protein">Protein (g)</label>
-                    <input type="number" id="protein" name="protein" class="form-input" step="0.1" required>
+                    <label for="protein" class="form-label">Protein (g)</label>
+                    <input type="number" 
+                           id="protein" 
+                           name="protein" 
+                           class="form-input"
+                           step="0.1"
+                           placeholder="e.g., 25"
+                           required>
                 </div>
+
                 <div class="form-group">
-                    <label for="quantity">Quantity</label>
-                    <input type="number" id="quantity" name="quantity" class="form-input" value="1" min="1" required>
+                    <label for="quantity" class="form-label">Quantity</label>
+                    <input type="number" 
+                           id="quantity" 
+                           name="quantity" 
+                           class="form-input"
+                           value="1"
+                           min="1"
+                           required>
                 </div>
+
                 <div class="form-group">
-                    <label for="date">Date</label>
-                    <input type="date" id="date" name="date" class="form-input" value="{{ date('Y-m-d') }}" required>
+                    <label for="date" class="form-label">Date</label>
+                    <input type="date" 
+                           id="date" 
+                           name="date" 
+                           class="form-input"
+                           value="{{ date('Y-m-d') }}"
+                           required>
                 </div>
             </div>
-            <button type="submit" class="submit-btn">Add Entry</button>
+
+            <button type="submit" class="submit-button">Add Entry</button>
         </form>
     </div>
 
     @if($foodEntries->isEmpty())
-        <p style="text-align:center;">You haven't logged any food yet. Start adding food entries!</p>
+        <div class="empty-state">
+            <p>You haven't logged any food yet. Start adding food entries!</p>
+        </div>
     @else
-        <table>
+        <table class="food-table">
             <thead>
                 <tr>
                     <th>Food Name</th>
@@ -178,14 +346,71 @@
                             <form id="edit-form-{{ $entry->id }}" class="edit-form" action="{{ route('food.update', $entry->id) }}" method="POST">
                                 @csrf
                                 @method('PUT')
-                                <input type="number" name="calories" class="edit-input" value="{{ $entry->calories }}" step="0.1" required>
-                                <input type="number" name="carbs" class="edit-input" value="{{ $entry->carbs }}" step="0.1" required>
-                                <input type="number" name="fat" class="edit-input" value="{{ $entry->fat }}" step="0.1" required>
-                                <input type="number" name="protein" class="edit-input" value="{{ $entry->protein }}" step="0.1" required>
-                                <input type="number" name="quantity" class="edit-input" value="{{ $entry->quantity }}" min="1" required>
-                                <input type="date" name="date" class="edit-input" value="{{ $entry->date ? $entry->date->format('Y-m-d') : $entry->created_at->format('Y-m-d') }}" required>
-                                <button type="submit" class="btn btn-edit">Save</button>
-                                <button type="button" class="btn btn-delete" onclick="toggleEditForm({{ $entry->id }})">Cancel</button>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="calories" class="form-label">Calories</label>
+                                        <input type="number" 
+                                               name="calories" 
+                                               class="form-input"
+                                               value="{{ $entry->calories }}" 
+                                               step="0.1" 
+                                               required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="carbs" class="form-label">Carbs (g)</label>
+                                        <input type="number" 
+                                               name="carbs" 
+                                               class="form-input"
+                                               value="{{ $entry->carbs }}" 
+                                               step="0.1" 
+                                               required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="fat" class="form-label">Fat (g)</label>
+                                        <input type="number" 
+                                               name="fat" 
+                                               class="form-input"
+                                               value="{{ $entry->fat }}" 
+                                               step="0.1" 
+                                               required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="protein" class="form-label">Protein (g)</label>
+                                        <input type="number" 
+                                               name="protein" 
+                                               class="form-input"
+                                               value="{{ $entry->protein }}" 
+                                               step="0.1" 
+                                               required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="quantity" class="form-label">Quantity</label>
+                                        <input type="number" 
+                                               name="quantity" 
+                                               class="form-input"
+                                               value="{{ $entry->quantity }}" 
+                                               min="1" 
+                                               required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="date" class="form-label">Date</label>
+                                        <input type="date" 
+                                               name="date" 
+                                               class="form-input"
+                                               value="{{ $entry->date ? $entry->date->format('Y-m-d') : $entry->created_at->format('Y-m-d') }}" 
+                                               required>
+                                    </div>
+                                </div>
+
+                                <div class="action-buttons">
+                                    <button type="submit" class="btn btn-edit">Save</button>
+                                    <button type="button" class="btn btn-delete" onclick="toggleEditForm({{ $entry->id }})">Cancel</button>
+                                </div>
                             </form>
                         </td>
                     </tr>
@@ -197,17 +422,8 @@
 
 <script>
 function toggleEditForm(entryId) {
-    const row = document.getElementById(`entry-row-${entryId}`);
-    const editForm = document.getElementById(`edit-form-${entryId}`);
-    const actionButtons = row.querySelector('.action-buttons');
-    
-    if (editForm.classList.contains('active')) {
-        editForm.classList.remove('active');
-        actionButtons.style.display = 'flex';
-    } else {
-        editForm.classList.add('active');
-        actionButtons.style.display = 'none';
-    }
+    const form = document.getElementById(`edit-form-${entryId}`);
+    form.classList.toggle('active');
 }
 </script>
 @endsection

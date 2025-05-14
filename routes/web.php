@@ -22,7 +22,7 @@ Route::post('register', [AuthController::class, 'register']);
 Route::get('home', [AuthController::class, 'home'])->name('home');
 
 // Authenticated Routes
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth'])->group(function () {
     // Dashboard and Profile
     Route::get('/dashboard', [ProfileController::class, 'showDashboard'])->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'showProfile'])->name('profile');
@@ -38,14 +38,18 @@ Route::middleware('auth')->group(function () {
         Route::post('store', [FoodController::class, 'store'])->name('store');
         Route::delete('entries/{id}', [FoodController::class, 'destroy'])->name('remove');
         Route::get('barcode/{barcode}', [FoodController::class, 'getFoodByBarcode'])->name('barcode');
+        Route::put('entries/{id}', [FoodController::class, 'update'])->name('update');
     });
 
     // Add food (separate route if needed)
     Route::post('/add-food', [FoodController::class, 'store'])->name('add.food');
 
     // Exercise routes
-    Route::post('/exercise', [ExerciseController::class, 'store'])->name('exercise.store');
-    Route::get('/exercise/history', [ExerciseController::class, 'getHistory'])->name('exercise.history');
+    Route::get('/exercises', [ExerciseController::class, 'index'])->name('exercises.index');
+    Route::get('/exercises/create', [ExerciseController::class, 'create'])->name('exercises.create');
+    Route::post('/exercises', [ExerciseController::class, 'store'])->name('exercises.store');
+    Route::delete('/exercises/{exercise}', [ExerciseController::class, 'destroy'])->name('exercises.destroy');
+    Route::get('/exercises/history', [ExerciseController::class, 'getHistory'])->name('exercises.history');
 });
 
 

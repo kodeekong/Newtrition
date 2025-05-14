@@ -217,4 +217,46 @@ class FoodController extends Controller
                 ->with('error', 'Error deleting food entry. Please try again.');
         }
     }
+
+    /**
+     * Update a food entry.
+     */
+    public function update(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'calories' => 'required|numeric|min:0',
+                'carbs' => 'required|numeric|min:0',
+                'fat' => 'required|numeric|min:0',
+                'protein' => 'required|numeric|min:0',
+                'quantity' => 'required|numeric|min:1',
+                'date' => 'required|date'
+            ]);
+
+            $entry = FoodEntry::where('user_id', Auth::id())
+                ->where('id', $id)
+                ->firstOrFail();
+
+            $entry->calories = $request->calories;
+            $entry->carbs = $request->carbs;
+            $entry->fat = $request->fat;
+            $entry->protein = $request->protein;
+            $entry->quantity = $request->quantity;
+            $entry->date = $request->date;
+            $entry->save();
+
+            return redirect()->back()->with('success', 'Food entry updated successfully!');
+
+        } catch (\Exception $e) {
+            Log::error('Food Entry Update Error', [
+                'id' => $id,
+                'message' => $e->getMessage(),
+                'data' => $request->all()
+            ]);
+
+            return redirect()->back()
+                ->with('error', 'Error updating food entry. Please try again.')
+                ->withInput();
+        }
+    }
 }
