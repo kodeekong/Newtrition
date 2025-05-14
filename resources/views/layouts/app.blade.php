@@ -201,12 +201,60 @@
                 font-size: 2rem;
             }
         }
+        /* --- DARK MODE VARIABLES --- */
+        body.dark-mode {
+            --primary-color: #60a5fa;
+            --primary-hover: #3b82f6;
+            --secondary-color: #94a3b8;
+            --accent-color: #fbbf24;
+            --background-color: #18181b;
+            --card-background: #27272a;
+            --text-primary: #f1f5f9;
+            --text-secondary: #a1a1aa;
+            --border-color: #27272a;
+        }
+        body.dark-mode, body.dark-mode html {
+            background-color: var(--background-color) !important;
+            color: var(--text-primary) !important;
+        }
+        body.dark-mode header, body.dark-mode footer {
+            background-color: var(--card-background) !important;
+            color: var(--text-secondary) !important;
+        }
+        body.dark-mode .card, body.dark-mode .welcome-section {
+            background-color: var(--card-background) !important;
+            color: var(--text-primary) !important;
+        }
+        body.dark-mode nav ul li a, body.dark-mode nav ul li button {
+            color: var(--text-primary) !important;
+        }
+        body.dark-mode nav ul li a:hover, body.dark-mode nav ul li button:hover {
+            color: var(--primary-color) !important;
+            background-color: rgba(96, 165, 250, 0.1) !important;
+        }
+        body.dark-mode .btn-primary {
+            background-color: var(--primary-color) !important;
+            color: #fff !important;
+        }
+        body.dark-mode .btn-primary:hover {
+            background-color: var(--primary-hover) !important;
+        }
+        body.dark-mode .logout-button {
+            color: #f87171 !important;
+        }
+        body.dark-mode .logout-button:hover {
+            background-color: rgba(248, 113, 113, 0.1) !important;
+        }
+        /* --- END DARK MODE --- */
     </style>
 </head>
 <body>
     <header>
         <div class="header-content">
             <img src="{{ asset('images/newtrition_logo.png') }}" alt="Newtrition Logo">
+            <button id="darkModeToggle" aria-label="Toggle dark mode" style="background:none;border:none;cursor:pointer;font-size:1.5rem;margin-right:1rem;" title="Toggle dark mode">
+                <i id="darkModeIcon" class="fas fa-moon"></i>
+            </button>
             @auth
                 <nav>
                     <ul>
@@ -245,5 +293,30 @@
             <a href="#">Terms of Service</a>
         </p>
     </footer>
+    <script>
+        // Dark mode toggle logic
+        function setDarkMode(enabled) {
+            if (enabled) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('darkModeIcon').classList.remove('fa-moon');
+                document.getElementById('darkModeIcon').classList.add('fa-sun');
+            } else {
+                document.body.classList.remove('dark-mode');
+                document.getElementById('darkModeIcon').classList.remove('fa-sun');
+                document.getElementById('darkModeIcon').classList.add('fa-moon');
+            }
+        }
+        // On load, set mode from localStorage or system preference
+        (function() {
+            const saved = localStorage.getItem('darkMode');
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            setDarkMode(saved === 'true' || (saved === null && prefersDark));
+        })();
+        document.getElementById('darkModeToggle').addEventListener('click', function() {
+            const isDark = document.body.classList.contains('dark-mode');
+            setDarkMode(!isDark);
+            localStorage.setItem('darkMode', String(!isDark));
+        });
+    </script>
 </body>
 </html>
