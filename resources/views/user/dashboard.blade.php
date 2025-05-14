@@ -195,6 +195,46 @@
         background-color: var(--background-color);
         color: var(--text-primary);
     }
+
+    .meal-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1rem;
+    }
+
+    .meal-table th,
+    .meal-table td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .meal-table th {
+        background-color: var(--card-background);
+        font-weight: 600;
+    }
+
+    .meal-table tfoot tr {
+        background-color: var(--card-background);
+    }
+
+    .no-entries {
+        text-align: center;
+        color: var(--text-secondary);
+        padding: 1rem;
+    }
+
+    .btn-delete {
+        background: none;
+        border: none;
+        color: #ef4444;
+        cursor: pointer;
+        padding: 0.25rem;
+    }
+
+    .btn-delete:hover {
+        color: #dc2626;
+    }
 </style>
 
 <div class="dashboard-container">
@@ -212,15 +252,15 @@
         </div>
         <div class="stat-card">
             <h3>Calories Burned</h3>
-            <div class="value" id="caloriesBurned">0</div>
+            <div class="value">{{ $totalCaloriesBurned }} kcal</div>
         </div>
         <div class="stat-card">
             <h3>Net Calories</h3>
-            <div class="value" id="netCalories">0</div>
+            <div class="value">{{ $netCalories }}</div>
         </div>
         <div class="stat-card">
             <h3>Exercise Duration</h3>
-            <div class="value" id="exerciseDuration">0 min</div>
+            <div class="value">{{ $totalExerciseDuration }} min</div>
         </div>
     </div>
 
@@ -237,9 +277,66 @@
             <div class="meal-tab" data-meal="snack">Snacks</div>
         </div>
         <div id="mealContent">
-            <!-- Meal content will be loaded here -->
+            @foreach(['breakfast', 'lunch', 'dinner', 'snack'] as $mealType)
+                <div class="meal-content" id="{{ $mealType }}-content" style="display: {{ $loop->first ? 'block' : 'none' }}">
+                    <div class="meal-entries">
+                        @php
+                            $mealEntries = $foodEntries->where('meal_type', $mealType);
+                        @endphp
+                        
+                        @if($mealEntries->isEmpty())
+                            <p class="no-entries">No {{ $mealType }} entries yet.</p>
+                        @else
+                            <table class="meal-table">
+                                <thead>
+                                    <tr>
+                                        <th>Food</th>
+                                        <th>Calories</th>
+                                        <th>Protein</th>
+                                        <th>Carbs</th>
+                                        <th>Fat</th>
+                                        <th>Quantity</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($mealEntries as $entry)
+                                        <tr>
+                                            <td>{{ $entry->food_name }}</td>
+                                            <td>{{ $entry->calories }}</td>
+                                            <td>{{ $entry->protein }}g</td>
+                                            <td>{{ $entry->carbs }}g</td>
+                                            <td>{{ $entry->fat }}g</td>
+                                            <td>{{ $entry->quantity }}</td>
+                                            <td>
+                                                <form action="{{ route('food.remove', $entry->id) }}" method="POST" style="display: inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn-delete" onclick="return confirm('Are you sure you want to delete this entry?')">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td><strong>Total</strong></td>
+                                        <td><strong>{{ $mealEntries->sum('calories') }}</strong></td>
+                                        <td><strong>{{ $mealEntries->sum('protein') }}g</strong></td>
+                                        <td><strong>{{ $mealEntries->sum('carbs') }}g</strong></td>
+                                        <td><strong>{{ $mealEntries->sum('fat') }}g</strong></td>
+                                        <td colspan="2"></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        @endif
+                    </div>
+                    <button class="btn" onclick="showAddFoodModal('{{ $mealType }}')">Add {{ ucfirst($mealType) }}</button>
+                </div>
+            @endforeach
         </div>
-        <button class="btn" onclick="showAddFoodModal()">Add Food</button>
     </div>
 
     <div class="history-section">
@@ -257,38 +354,37 @@
 <div id="addFoodModal" class="modal">
     <div class="modal-content">
         <h2>Add Food</h2>
-        <form id="addFoodForm">
+        <form id="addFoodForm" action="{{ route('food.store') }}" method="POST">
+            @csrf
+            <input type="hidden" name="meal_type" id="mealType">
             <div class="form-group">
                 <label for="foodName">Food Name</label>
-                <input type="text" id="foodName" required>
-            </div>
-            <div class="form-group">
-                <label for="mealCategory">Meal Category</label>
-                <select id="mealCategory" required>
-                    <option value="breakfast">Breakfast</option>
-                    <option value="lunch">Lunch</option>
-                    <option value="dinner">Dinner</option>
-                    <option value="snack">Snack</option>
-                </select>
+                <input type="text" id="foodName" name="food_name" required>
             </div>
             <div class="form-group">
                 <label for="calories">Calories</label>
-                <input type="number" id="calories" required>
-            </div>
-            <div class="form-group">
-                <label for="carbs">Carbs (g)</label>
-                <input type="number" id="carbs" required>
-            </div>
-            <div class="form-group">
-                <label for="fat">Fat (g)</label>
-                <input type="number" id="fat" required>
+                <input type="number" id="calories" name="calories" step="0.1" required>
             </div>
             <div class="form-group">
                 <label for="protein">Protein (g)</label>
-                <input type="number" id="protein" required>
+                <input type="number" id="protein" name="protein" step="0.1" required>
             </div>
-            <button type="submit" class="btn">Add Food</button>
-            <button type="button" class="btn" onclick="closeAddFoodModal()">Cancel</button>
+            <div class="form-group">
+                <label for="carbs">Carbs (g)</label>
+                <input type="number" id="carbs" name="carbs" step="0.1" required>
+            </div>
+            <div class="form-group">
+                <label for="fat">Fat (g)</label>
+                <input type="number" id="fat" name="fat" step="0.1" required>
+            </div>
+            <div class="form-group">
+                <label for="quantity">Quantity</label>
+                <input type="number" id="quantity" name="quantity" value="1" min="1" required>
+            </div>
+            <div class="modal-buttons">
+                <button type="submit" class="btn">Add Food</button>
+                <button type="button" class="btn" onclick="closeAddFoodModal()">Cancel</button>
+            </div>
         </form>
     </div>
 </div>
@@ -322,22 +418,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // PHP to JavaScript variables
-    const nutritionValues = {
-        consumed: {
-            calories: {{ $nutrition->calories_consumed ?? 0 }},
-            protein: {{ $nutrition->protein_consumed ?? 0 }},
-            carbs: {{ $nutrition->carbs_consumed ?? 0 }},
-            fat: {{ $nutrition->fat_consumed ?? 0 }}
-        },
-        goals: {
-            calories: {{ $nutrition->calories_goal ?? 0 }},
-            protein: {{ $nutrition->protein_goal ?? 0 }},
-            carbs: {{ $nutrition->carbs_goal ?? 0 }},
-            fat: {{ $nutrition->fat_goal ?? 0 }}
-        }
-    };
-
     // Theme Toggle
     function toggleTheme() {
         const body = document.body;
@@ -356,47 +436,45 @@
         document.body.setAttribute('data-theme', savedTheme);
         const icon = document.querySelector('.theme-toggle i');
         icon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    });
 
-        // Initialize Charts
-        const ctx = document.getElementById('nutritionChart');
-        if (ctx) {
-            new Chart(ctx.getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels: ['Calories', 'Protein', 'Carbs', 'Fat'],
-                    datasets: [{
-                        label: 'Consumed',
-                        data: [
-                            nutritionValues.consumed.calories,
-                            nutritionValues.consumed.protein,
-                            nutritionValues.consumed.carbs,
-                            nutritionValues.consumed.fat
-                        ],
-                        backgroundColor: 'rgba(37, 99, 235, 0.5)',
-                        borderColor: 'rgba(37, 99, 235, 1)',
-                        borderWidth: 1
-                    }, {
-                        label: 'Goal',
-                        data: [
-                            nutritionValues.goals.calories,
-                            nutritionValues.goals.protein,
-                            nutritionValues.goals.carbs,
-                            nutritionValues.goals.fat
-                        ],
-                        backgroundColor: 'rgba(245, 158, 11, 0.5)',
-                        borderColor: 'rgba(245, 158, 11, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
+    // Initialize Charts
+    const ctx = document.getElementById('nutritionChart').getContext('2d');
+    const nutritionChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Calories', 'Protein', 'Carbs', 'Fat'],
+            datasets: [{
+                label: 'Consumed',
+                data: [
+                    {{ $nutrition->calories_consumed ?? 0 }},
+                    {{ $nutrition->protein_consumed ?? 0 }},
+                    {{ $nutrition->carbs_consumed ?? 0 }},
+                    {{ $nutrition->fat_consumed ?? 0 }}
+                ],
+                backgroundColor: 'rgba(37, 99, 235, 0.5)',
+                borderColor: 'rgba(37, 99, 235, 1)',
+                borderWidth: 1
+            }, {
+                label: 'Goal',
+                data: [
+                    {{ $nutrition->calories_goal ?? 0 }},
+                    {{ $nutrition->protein_goal ?? 0 }},
+                    {{ $nutrition->carbs_goal ?? 0 }},
+                    {{ $nutrition->fat_goal ?? 0 }}
+                ],
+                backgroundColor: 'rgba(245, 158, 11, 0.5)',
+                borderColor: 'rgba(245, 158, 11, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
                 }
-            });
+            }
         }
     });
 
@@ -405,78 +483,56 @@
         tab.addEventListener('click', function() {
             document.querySelectorAll('.meal-tab').forEach(t => t.classList.remove('active'));
             this.classList.add('active');
-            loadMealContent(this.dataset.meal);
+            
+            const mealType = this.dataset.meal;
+            document.querySelectorAll('.meal-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            document.getElementById(`${mealType}-content`).style.display = 'block';
         });
     });
 
-    // Load Meal Content
-    function loadMealContent(meal) {
-        const mealContent = document.getElementById('mealContent');
-        if (mealContent) {
-            // Implement meal content loading
-            mealContent.innerHTML = `<p>Loading ${meal} content...</p>`;
-        }
-    }
-
     // Load History
     function loadHistory() {
-        const date = document.getElementById('historyDate')?.value;
-        if (!date) return;
-
+        const date = document.getElementById('historyDate').value;
         fetch(`/exercise/history?date=${date}`)
             .then(response => response.json())
             .then(data => {
-                const caloriesBurned = document.getElementById('caloriesBurned');
-                const exerciseDuration = document.getElementById('exerciseDuration');
-                const netCalories = document.getElementById('netCalories');
-
-                if (caloriesBurned) caloriesBurned.textContent = data.total_calories_burned || 0;
-                if (exerciseDuration) exerciseDuration.textContent = `${data.total_duration || 0} min`;
-                if (netCalories) netCalories.textContent = nutritionValues.consumed.calories - (data.total_calories_burned || 0);
-            })
-            .catch(error => {
-                console.error('Error loading history:', error);
+                // Update history content
+                document.getElementById('caloriesBurned').textContent = data.total_calories_burned;
+                document.getElementById('exerciseDuration').textContent = `${data.total_duration} min`;
+                document.getElementById('netCalories').textContent = 
+                    {{ $nutrition->calories_consumed ?? 0 }} - data.total_calories_burned;
             });
     }
 
     // Modal Functions
-    function showAddFoodModal() {
-        const modal = document.getElementById('addFoodModal');
-        if (modal) modal.style.display = 'flex';
+    function showAddFoodModal(mealType) {
+        document.getElementById('mealType').value = mealType;
+        document.getElementById('addFoodModal').style.display = 'flex';
     }
 
     function closeAddFoodModal() {
-        const modal = document.getElementById('addFoodModal');
-        if (modal) modal.style.display = 'none';
+        document.getElementById('addFoodModal').style.display = 'none';
     }
 
     function showAddExerciseModal() {
-        const modal = document.getElementById('addExerciseModal');
-        if (modal) modal.style.display = 'flex';
+        document.getElementById('addExerciseModal').style.display = 'flex';
     }
 
     function closeAddExerciseModal() {
-        const modal = document.getElementById('addExerciseModal');
-        if (modal) modal.style.display = 'none';
+        document.getElementById('addExerciseModal').style.display = 'none';
     }
 
     // Form Submissions
-    const addFoodForm = document.getElementById('addFoodForm');
-    if (addFoodForm) {
-        addFoodForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            // Implement food submission
-            console.log('Food form submitted');
-        });
-    }
+    document.getElementById('addFoodForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        // Implement food submission
+    });
 
-    const addExerciseForm = document.getElementById('addExerciseForm');
-    if (addExerciseForm) {
-        addExerciseForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            // Implement exercise submission
-            console.log('Exercise form submitted');
-        });
-    }
+    document.getElementById('addExerciseForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        // Implement exercise submission
+    });
 </script>
 @endsection

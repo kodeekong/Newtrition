@@ -246,40 +246,209 @@
             background-color: rgba(248, 113, 113, 0.1) !important;
         }
         /* --- END DARK MODE --- */
+
+        /* Exercise Tracker Styles */
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #475569;
+            transform: translateY(-1px);
+        }
+
+        .grid {
+            display: grid;
+        }
+
+        .grid-cols-1 {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+
+        @media (min-width: 768px) {
+            .md\:grid-cols-2 {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        .gap-6 {
+            gap: 1.5rem;
+        }
+
+        .space-y-6 > * + * {
+            margin-top: 1.5rem;
+        }
+
+        .rounded-md {
+            border-radius: 0.375rem;
+        }
+
+        .border-gray-300 {
+            border-color: #d1d5db;
+        }
+
+        .shadow-sm {
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        .focus\:border-primary-500:focus {
+            border-color: var(--primary-color);
+        }
+
+        .focus\:ring-primary-500:focus {
+            --tw-ring-color: var(--primary-color);
+        }
+
+        .dark .dark\:bg-gray-700 {
+            background-color: #374151;
+        }
+
+        .dark .dark\:border-gray-600 {
+            border-color: #4b5563;
+        }
+
+        .dark .dark\:text-white {
+            color: #ffffff;
+        }
+
+        .dark .dark\:text-gray-300 {
+            color: #d1d5db;
+        }
+
+        .dark .dark\:text-gray-400 {
+            color: #9ca3af;
+        }
+
+        .dark .dark\:text-gray-100 {
+            color: #f3f4f6;
+        }
+
+        .dark .dark\:bg-gray-800 {
+            background-color: #1f2937;
+        }
+
+        .dark .dark\:divide-gray-600 > * + * {
+            border-color: #4b5563;
+        }
+
+        .dark .dark\:hover\:bg-gray-700:hover {
+            background-color: #374151;
+        }
+
+        body.dark-mode .container {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+        }
+
+        body.dark-mode main {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+        }
+
+        body.dark-mode .card {
+            background-color: var(--card-background);
+            color: var(--text-primary);
+        }
+
+        body.dark-mode .welcome-section {
+            background-color: var(--card-background);
+            color: var(--text-primary);
+        }
+
+        body.dark-mode .welcome-section h1 {
+            color: var(--primary-color);
+        }
+
+        body.dark-mode .welcome-section p {
+            color: var(--text-secondary);
+        }
+
+        /* Ensure all text in dark mode is visible */
+        body.dark-mode {
+            color: var(--text-primary);
+        }
+
+        body.dark-mode h1, 
+        body.dark-mode h2, 
+        body.dark-mode h3, 
+        body.dark-mode h4, 
+        body.dark-mode h5, 
+        body.dark-mode h6 {
+            color: var(--text-primary);
+        }
+
+        body.dark-mode p {
+            color: var(--text-secondary);
+        }
+
+        /* Fix dashboard specific styles */
+        body.dark-mode .dashboard-stats {
+            background-color: var(--card-background);
+            color: var(--text-primary);
+        }
+
+        body.dark-mode .stat-card {
+            background-color: var(--card-background);
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+
+        body.dark-mode .stat-value {
+            color: var(--primary-color);
+        }
+
+        body.dark-mode .stat-label {
+            color: var(--text-secondary);
+        }
+
+        /* Fix profile specific styles */
+        body.dark-mode .profile-container {
+            background-color: var(--card-background);
+            color: var(--text-primary);
+        }
+
+        body.dark-mode .profile-section {
+            background-color: var(--card-background);
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+
+        body.dark-mode .profile-label {
+            color: var(--text-secondary);
+        }
+
+        body.dark-mode .profile-value {
+            color: var(--text-primary);
+        }
     </style>
 </head>
 <body>
+    @auth
     <header>
         <div class="header-content">
             <img src="{{ asset('images/newtrition_logo.png') }}" alt="Newtrition Logo">
             <button id="darkModeToggle" aria-label="Toggle dark mode" style="background:none;border:none;cursor:pointer;font-size:1.5rem;margin-right:1rem;" title="Toggle dark mode">
                 <i id="darkModeIcon" class="fas fa-moon"></i>
             </button>
-            @auth
-                <nav>
-                    <ul>
-                        <li><a href="{{ route('food.search') }}"><i class="fas fa-search"></i> Food Search</a></li>
-                        <li><a href="{{ route('food.entries') }}">Food Entries</a></li> 
-                        <li><a href="{{ route('dashboard') }}"><i class="fas fa-chart-line"></i> Dashboard</a></li>
-                        <li><a href="{{ route('profile') }}"><i class="fas fa-user"></i> Profile</a></li>
-                        <li>
-                            <form action="{{ route('logout') }}" method="POST" style="display: inline;">
-                                @csrf
-                                <button type="submit" class="logout-button"><i class="fas fa-sign-out-alt"></i> Logout</button>
-                            </form>
-                        </li>
-                    </ul>
-                </nav>
-            @else
-                <nav>
-                    <ul>
-                        <li><a href="{{ route('login') }}"><i class="fas fa-sign-in-alt"></i> Login</a></li>
-                        <li><a href="{{ route('register') }}" class="btn btn-primary"><i class="fas fa-user-plus"></i> Register</a></li>
-                    </ul>
-                </nav>
-            @endauth
+            <nav>
+                <ul>
+                    <li><a href="{{ route('food.search') }}"><i class="fas fa-search"></i> Food Search</a></li>
+                    <li><a href="{{ route('food.entries') }}">Food Entries</a></li> 
+                    <li><a href="{{ route('exercises.index') }}"><i class="fas fa-running"></i> Exercise Tracker</a></li>
+                    <li><a href="{{ route('dashboard') }}"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+                    <li><a href="{{ route('profile') }}"><i class="fas fa-user"></i> Profile</a></li>
+                    <li>
+                        <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                            @csrf
+                            <button type="submit" class="logout-button"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                        </form>
+                    </li>
+                </ul>
+            </nav>
         </div>
     </header>
+    @endauth
 
     <main>
         <div class="container">
